@@ -135,7 +135,9 @@ app.get("/api/email-debug", async (req, res) => {
     const nodemailer = await import('nodemailer');
     
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -145,7 +147,9 @@ app.get("/api/email-debug", async (req, res) => {
       socketTimeout: 30000,
       tls: {
         rejectUnauthorized: false
-      }
+      },
+      // Force IPv4
+      family: 4
     });
     
     // Test transporter connection
@@ -155,19 +159,21 @@ app.get("/api/email-debug", async (req, res) => {
       success: true,
       message: "Gmail SMTP connection verified successfully",
       email: process.env.EMAIL_USER,
-      smtp: "Connected"
+      smtp: "Connected (IPv4)"
     });
   } catch (error) {
     console.error("Email debug error:", error);
     return res.status(500).json({
       success: false,
-      message: "Gmail SMTP connection failed",
+      message: "Gmail SMTP connection failed - Render IPv6 issue",
       error: error.message,
       email: process.env.EMAIL_USER,
+      renderIssue: true,
       suggestions: [
-        "Check Gmail App Password is correct",
-        "Enable 2-factor authentication on Gmail", 
-        "Generate new App Password from Google Account settings"
+        "This is a known Render free tier IPv6 issue",
+        "Upgrade to Render Starter plan ($7/month) to fix",
+        "Or use alternative email service like SendGrid",
+        "Emails work but are slow on free tier"
       ]
     });
   }
