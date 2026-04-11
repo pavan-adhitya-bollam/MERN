@@ -6,9 +6,7 @@ import bcrypt from 'bcryptjs';
 const isEmailConfigured = () => {
   const email = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASS;
-  return email && pass && 
-         email !== 'pavan@gmail.com' && 
-         pass !== 'abc123';
+  return email && pass;
 };
 
 // POST /api/auth/send-otp

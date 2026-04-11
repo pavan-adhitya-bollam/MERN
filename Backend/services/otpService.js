@@ -11,9 +11,7 @@ const passwordResetStore = new Map();
 const isEmailConfigured = () => {
   const email = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASS;
-  return email && pass && 
-         email !== 'pavan@gmail.com' && 
-         pass !== 'abc123';
+  return email && pass;
 };
 
 // Create transporter using Gmail SMTP
@@ -94,7 +92,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
   try {
     console.log('Password reset token generated:', resetToken);
     
-    const resetLink = `http://localhost:5173/reset-password?token=${resetToken}&email=${email}`;
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${email}`;
     
     const mailOptions = {
       from: process.env.EMAIL_USER,
