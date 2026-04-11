@@ -100,7 +100,35 @@ app.get("/api/email-config", (req, res) => {
   });
 });
 
-// Test email route
+// Quick email verification test (instant)
+app.get("/api/email-test", (req, res) => {
+  try {
+    const emailUser = process.env.EMAIL_USER;
+    const emailPass = process.env.EMAIL_PASS;
+    
+    if (!emailUser || !emailPass) {
+      return res.status(400).json({
+        success: false,
+        message: "Email credentials not configured"
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: "Email service is configured and ready",
+      email: emailUser,
+      status: "Ready to send emails",
+      note: "Use /api/auth/send-otp for actual email testing"
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Configuration error"
+    });
+  }
+});
+
+// Test email route (async)
 app.get("/api/test-email", async (req, res) => {
   try {
     const { sendOTPEmail } = await import('./services/otpService.js');
@@ -119,7 +147,7 @@ app.get("/api/test-email", async (req, res) => {
     // Set timeout for email sending
     const emailPromise = sendOTPEmail(testEmail, testOTP);
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Email timeout')), 20000)
+      setTimeout(() => reject(new Error('Email timeout')), 15000)
     );
     
     const emailSent = await Promise.race([emailPromise, timeoutPromise]);
@@ -141,7 +169,7 @@ app.get("/api/test-email", async (req, res) => {
     if (error.message === 'Email timeout') {
       return res.status(408).json({
         success: false,
-        message: "Email sending timeout - check Gmail app password"
+        message: "Email sending timeout - Gmail SMTP slow on Render free tier"
       });
     }
     return res.status(500).json({
