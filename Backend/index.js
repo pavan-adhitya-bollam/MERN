@@ -128,6 +128,36 @@ app.get("/api/email-test", (req, res) => {
   }
 });
 
+// Detailed email debugging endpoint
+app.get("/api/email-debug", async (req, res) => {
+  try {
+    const { transporter } = await import('./services/otpService.js');
+    
+    // Test transporter connection
+    await transporter.verify();
+    
+    return res.status(200).json({
+      success: true,
+      message: "Gmail SMTP connection verified successfully",
+      email: process.env.EMAIL_USER,
+      smtp: "Connected"
+    });
+  } catch (error) {
+    console.error("Email debug error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Gmail SMTP connection failed",
+      error: error.message,
+      email: process.env.EMAIL_USER,
+      suggestions: [
+        "Check Gmail App Password is correct",
+        "Enable 2-factor authentication on Gmail",
+        "Generate new App Password from Google Account settings"
+      ]
+    });
+  }
+});
+
 // Test email route (async)
 app.get("/api/test-email", async (req, res) => {
   try {
