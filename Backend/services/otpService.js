@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import sgMail from '@sendgrid/mail';
 
 // In-memory OTP storage (email → { otp, expiresAt, lastSent })
 const otpStore = new Map();
@@ -7,31 +8,15 @@ const otpStore = new Map();
 // In-memory password reset token storage (email → { token, expiresAt })
 const passwordResetStore = new Map();
 
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 // Check if email is properly configured
 const isEmailConfigured = () => {
+  const sendgridKey = process.env.SENDGRID_API_KEY;
   const email = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
-  return email && pass;
+  return sendgridKey && email;
 };
-
-// Create transporter using Gmail SMTP (Render compatible)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 30000,
-  greetingTimeout: 10000,
-  socketTimeout: 30000,
-  tls: {
-    rejectUnauthorized: false
-  },
-  pool: true,
-  maxConnections: 1,
-  rateDelta: 20000,
-  rateLimit: 5
-});
 
 // Generate 6-digit OTP
 const generateOTP = () => {
@@ -88,12 +73,12 @@ export const sendOTPEmail = async (email, otp) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(mailOptions);
     console.log('OTP email sent successfully to:', email);
     return true;
   } catch (error) {
-    console.error('ERROR sending OTP email:', error);
-    console.error('Email configuration check - EMAIL_USER:', !!process.env.EMAIL_USER, 'EMAIL_PASS:', !!process.env.EMAIL_PASS);
+    console.error('ERROR sending OTP email via SendGrid:', error);
+    console.error('SendGrid configuration check - SENDGRID_API_KEY:', !!process.env.SENDGRID_API_KEY, 'EMAIL_USER:', !!process.env.EMAIL_USER);
     return false;
   }
 };
@@ -149,12 +134,12 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(mailOptions);
     console.log('Password reset email sent successfully to:', email);
     return true;
   } catch (error) {
-    console.error('ERROR sending password reset email:', error);
-    console.error('Email configuration check - EMAIL_USER:', !!process.env.EMAIL_USER, 'EMAIL_PASS:', !!process.env.EMAIL_PASS);
+    console.error('ERROR sending password reset email via SendGrid:', error);
+    console.error('SendGrid configuration check - SENDGRID_API_KEY:', !!process.env.SENDGRID_API_KEY, 'EMAIL_USER:', !!process.env.EMAIL_USER);
     return false;
   }
 };
