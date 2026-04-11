@@ -19,15 +19,32 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: [
-    "http://localhost:5173", 
-    "http://localhost:5174", 
-    "http://127.0.0.1:60873",
-    "http://172.27.240.1:5173", 
-    "http://172.27.240.1:5174",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allowed origins in development
+    const allowedOrigins = [
+      "http://localhost:5173", 
+      "http://localhost:5174", 
+      "http://127.0.0.1:60873",
+      "http://172.27.240.1:5173", 
+      "http://172.27.240.1:5174",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000"
+    ];
+    
+    // Add production frontend URL if configured
+    if (process.env.FRONTEND_URL) {
+      allowedOrigins.push(process.env.FRONTEND_URL);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"]
