@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import sgMail from '@sendgrid/mail';
 
@@ -18,6 +17,25 @@ const isEmailConfigured = () => {
   return sendgridKey && email;
 };
 
+// Reusable SendGrid email function
+const sendEmail = async (to, subject, htmlContent) => {
+  const msg = {
+    to,
+    from: process.env.EMAIL_USER,
+    subject,
+    html: htmlContent,
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log("Email sent successfully to:", to);
+    return true;
+  } catch (error) {
+    console.error("SendGrid Error:", error);
+    return false;
+  }
+};
+
 // Generate 6-digit OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -28,120 +46,89 @@ const generateResetToken = () => {
   return crypto.randomBytes(32).toString('hex');
 };
 
-// Send OTP email
+// Send OTP email using SendGrid
 export const sendOTPEmail = async (email, otp) => {
-  try {
-    console.log('OTP generated for:', email);
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Your OTP Code - DreamHire',
-      text: `Your OTP is ${otp}`,
-      html: `
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
-            <h1 style="margin: 0; font-size: 32px;">DreamHire</h1>
-            <p style="margin: 10px 0; opacity: 0.9;">Email Verification</p>
-          </div>
-          
-          <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-top: 20px;">
-            <h2 style="color: #374151; margin-bottom: 20px;">Verify Your Email Address</h2>
-            <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
-              Thank you for registering with DreamHire! To complete your registration, please use the following OTP (One-Time Password) to verify your email address:
-            </p>
-            
-            <div style="background: white; border: 2px dashed #667eea; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
-              <p style="margin: 0; color: #6b7280; font-size: 14px; margin-bottom: 10px;">Your OTP Code:</p>
-              <div style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 5px;">
-                ${otp}
-              </div>
-            </div>
-            
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
-              <strong>Important:</strong>
-              <br>· This OTP will expire in <strong>5 minutes</strong>
-              <br>· Do not share this OTP with anyone
-              <br>· If you didn't request this OTP, please ignore this email
-            </p>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
-            <p>This is an automated message from DreamHire. Please do not reply to this email.</p>
+  const subject = 'Your OTP Code - DreamHire';
+  const htmlContent = `
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
+        <h1 style="margin: 0; font-size: 32px;">DreamHire</h1>
+        <p style="margin: 10px 0; opacity: 0.9;">Email Verification</p>
+      </div>
+      
+      <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-top: 20px;">
+        <h2 style="color: #374151; margin-bottom: 20px;">Verify Your Email Address</h2>
+        <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+          Thank you for registering with DreamHire! To complete your registration, please use the following OTP (One-Time Password) to verify your email address:
+        </p>
+        
+        <div style="background: white; border: 2px dashed #667eea; padding: 20px; border-radius: 8px; margin: 30px 0; text-align: center;">
+          <p style="margin: 0; color: #6b7280; font-size: 14px; margin-bottom: 10px;">Your OTP Code:</p>
+          <div style="font-size: 36px; font-weight: bold; color: #667eea; letter-spacing: 5px;">
+            ${otp}
           </div>
         </div>
-      `,
-    };
+        
+        <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+          <strong>Important:</strong>
+          <br>· This OTP will expire in <strong>5 minutes</strong>
+          <br>· Do not share this OTP with anyone
+          <br>· If you didn't request this OTP, please ignore this email
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
+        <p>This is an automated message from DreamHire. Please do not reply to this email.</p>
+      </div>
+    </div>
+  `;
 
-    await sgMail.send(mailOptions);
-    console.log('OTP email sent successfully to:', email);
-    return true;
-  } catch (error) {
-    console.error('ERROR sending OTP email via SendGrid:', error);
-    console.error('SendGrid configuration check - SENDGRID_API_KEY:', !!process.env.SENDGRID_API_KEY, 'EMAIL_USER:', !!process.env.EMAIL_USER);
-    return false;
-  }
+  return await sendEmail(email, subject, htmlContent);
 };
 
-// Send password reset email
+// Send password reset email using SendGrid
 export const sendPasswordResetEmail = async (email, resetToken) => {
-  try {
-    console.log('Password reset token generated for:', email);
-    
-    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${email}`;
-    
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Password Reset Request - DreamHire',
-      text: `Please click the following link to reset your password: ${resetLink}`,
-      html: `
-        <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
-            <h1 style="margin: 0; font-size: 32px;">DreamHire</h1>
-            <p style="margin: 10px 0; opacity: 0.9;">Password Reset</p>
-          </div>
-          
-          <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-top: 20px;">
-            <h2 style="color: #374151; margin-bottom: 20px;">Reset Your Password</h2>
-            <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
-              We received a request to reset your password for your DreamHire account. Click the button below to set a new password:
-            </p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetLink}" style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-                Reset Password
-              </a>
-            </div>
-            
-            <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
-              <strong>Important:</strong>
-              <br>· This link will expire in <strong>15 minutes</strong>
-              <br>· If you didn't request this password reset, please ignore this email
-              <br>· For security reasons, never share this link with anyone
-            </p>
-            
-            <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">
-              If the button doesn't work, copy and paste this link into your browser:<br>
-              <span style="word-break: break-all; color: #667eea;">${resetLink}</span>
-            </p>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
-            <p>This is an automated message from DreamHire. Please do not reply to this email.</p>
-          </div>
+  const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${email}`;
+  const subject = 'Password Reset Request - DreamHire';
+  const htmlContent = `
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
+        <h1 style="margin: 0; font-size: 32px;">DreamHire</h1>
+        <p style="margin: 10px 0; opacity: 0.9;">Password Reset</p>
+      </div>
+      
+      <div style="background: #f9fafb; padding: 30px; border-radius: 10px; margin-top: 20px;">
+        <h2 style="color: #374151; margin-bottom: 20px;">Reset Your Password</h2>
+        <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+          We received a request to reset your password for your DreamHire account. Click the button below to set a new password:
+        </p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetLink}" style="display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+            Reset Password
+          </a>
         </div>
-      `,
-    };
+        
+        <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+          <strong>Important:</strong>
+          <br>· This link will expire in <strong>15 minutes</strong>
+          <br>· If you didn't request this password reset, please ignore this email
+          <br>· For security reasons, never share this link with anyone
+        </p>
+        
+        <p style="color: #6b7280; font-size: 12px; margin-top: 20px;">
+          If the button doesn't work, copy and paste this link into your browser:<br>
+          <span style="word-break: break-all; color: #667eea;">${resetLink}</span>
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px; color: #9ca3af; font-size: 12px;">
+        <p>This is an automated message from DreamHire. Please do not reply to this email.</p>
+      </div>
+    </div>
+  `;
 
-    await sgMail.send(mailOptions);
-    console.log('Password reset email sent successfully to:', email);
-    return true;
-  } catch (error) {
-    console.error('ERROR sending password reset email via SendGrid:', error);
-    console.error('SendGrid configuration check - SENDGRID_API_KEY:', !!process.env.SENDGRID_API_KEY, 'EMAIL_USER:', !!process.env.EMAIL_USER);
-    return false;
-  }
+  return await sendEmail(email, subject, htmlContent);
 };
 
 // Store OTP with expiration
