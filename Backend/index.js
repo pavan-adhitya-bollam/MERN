@@ -86,6 +86,20 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Quick email config test
+app.get("/api/email-config", (req, res) => {
+  res.status(200).json({
+    success: true,
+    config: {
+      EMAIL_USER: process.env.EMAIL_USER ? "configured" : "missing",
+      EMAIL_PASS: process.env.EMAIL_PASS ? "configured" : "missing",
+      MONGO_URL: process.env.MONGO_URL ? "configured" : "missing",
+      JWT_SECRET: process.env.JWT_SECRET ? "configured" : "missing",
+      NODE_ENV: process.env.NODE_ENV || "development"
+    }
+  });
+});
+
 // Test email route
 app.get("/api/test-email", async (req, res) => {
   try {
@@ -101,7 +115,14 @@ app.get("/api/test-email", async (req, res) => {
     }
     
     const testOTP = "123456"; // Fixed test OTP
-    const emailSent = await sendOTPEmail(testEmail, testOTP);
+    
+    // Set timeout for email sending
+    const emailPromise = sendOTPEmail(testEmail, testOTP);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Email timeout')), 20000)
+    );
+    
+    const emailSent = await Promise.race([emailPromise, timeoutPromise]);
     
     if (emailSent) {
       return res.status(200).json({
@@ -117,6 +138,12 @@ app.get("/api/test-email", async (req, res) => {
     }
   } catch (error) {
     console.error("ERROR in test email:", error);
+    if (error.message === 'Email timeout') {
+      return res.status(408).json({
+        success: false,
+        message: "Email sending timeout - check Gmail app password"
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Internal server error"
