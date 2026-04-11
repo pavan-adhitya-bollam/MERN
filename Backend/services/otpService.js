@@ -26,7 +26,11 @@ const transporter = nodemailer.createTransport({
   socketTimeout: 30000,
   tls: {
     rejectUnauthorized: false
-  }
+  },
+  pool: true,
+  maxConnections: 1,
+  rateDelta: 20000,
+  rateLimit: 5
 });
 
 // Generate 6-digit OTP
