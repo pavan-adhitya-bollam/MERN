@@ -60,6 +60,22 @@ const PORT = process.env.PORT || 5001;
  
 //api's
 
+// Root route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "DreamHire Backend API is running",
+    version: "1.0.0",
+    endpoints: {
+      health: "/api/health",
+      testEmail: "/api/test-email",
+      auth: "/api/auth",
+      user: "/api/user"
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check route
 app.get("/api/health", (req, res) => {
   res.status(200).json({
