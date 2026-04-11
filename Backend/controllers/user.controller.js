@@ -74,7 +74,15 @@ export const register = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    console.error("ERROR in register:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      fullname,
+      email,
+      phoneNumber,
+      role
+    });
     return res.status(500).json({
       message: "Server Error registering user",
       success: false,
@@ -146,7 +154,13 @@ export const login = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error(error);
+    console.error("ERROR in login:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      email: req.body?.email,
+      role: req.body?.role
+    });
     return res.status(500).json({
       message: "Login failed",
       success: false,
@@ -165,7 +179,11 @@ export const logout = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    console.error("ERROR in logout:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack
+    });
     return res.status(500).json({
       message: "Logout failed",
       success: false,
