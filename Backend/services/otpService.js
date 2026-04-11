@@ -20,6 +20,9 @@ const isEmailConfigured = () => {
 
 // Reusable SendGrid email function
 const sendEmail = async (to, subject, htmlContent) => {
+  console.log("Attempting to send email to:", to);
+  console.log("From:", process.env.EMAIL_USER);
+  
   const msg = {
     to,
     from: process.env.EMAIL_USER,
@@ -32,7 +35,8 @@ const sendEmail = async (to, subject, htmlContent) => {
     console.log("Email sent successfully to:", to);
     return true;
   } catch (error) {
-    console.error("SendGrid Error:", error);
+    console.error("SendGrid Error:", error.response?.body || error.message);
+    console.error("Error details:", JSON.stringify(error.response?.body || {}, null, 2));
     return false;
   }
 };
