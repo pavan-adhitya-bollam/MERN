@@ -131,7 +131,22 @@ app.get("/api/email-test", (req, res) => {
 // Detailed email debugging endpoint
 app.get("/api/email-debug", async (req, res) => {
   try {
-    const { transporter } = await import('./services/otpService.js');
+    // Import and create transporter directly
+    const nodemailer = await import('nodemailer');
+    
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      connectionTimeout: 30000,
+      greetingTimeout: 10000,
+      socketTimeout: 30000,
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
     
     // Test transporter connection
     await transporter.verify();
@@ -151,7 +166,7 @@ app.get("/api/email-debug", async (req, res) => {
       email: process.env.EMAIL_USER,
       suggestions: [
         "Check Gmail App Password is correct",
-        "Enable 2-factor authentication on Gmail",
+        "Enable 2-factor authentication on Gmail", 
         "Generate new App Password from Google Account settings"
       ]
     });
