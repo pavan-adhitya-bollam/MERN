@@ -1,5 +1,5 @@
 import { Application } from "../models/application.model.js";
-import User from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import { sendEmail } from "../services/otpService.js";
 import mongoose from "mongoose";
 
