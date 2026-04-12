@@ -7,7 +7,13 @@ const otpStore = new Map();
 // In-memory password reset token storage (email → { token, expiresAt })
 const passwordResetStore = new Map();
 
-// Initialize SendGrid
+// Initialize SendGrid with API key
+console.log("=== SENDGRID CONFIG DEBUG ===");
+console.log("SendGrid API Key exists:", !!process.env.SENDGRID_API_KEY);
+console.log("SendGrid API Key length:", process.env.SENDGRID_API_KEY?.length);
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("============================");
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Check if email is properly configured

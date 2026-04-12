@@ -327,9 +327,11 @@ export const sendOTP = async (req, res) => {
     console.log("OTP email sent result:", emailSent);
     
     if (!emailSent) {
+      console.log("Email sending failed - returning error response");
       return res.status(500).json({
-        message: "Failed to send OTP to email",
+        message: "Failed to send OTP to email. Please check SendGrid configuration.",
         success: false,
+        error: "Email service unavailable"
       });
     }
     
