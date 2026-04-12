@@ -8,8 +8,6 @@ const otpStore = new Map();
 const passwordResetStore = new Map();
 
 // Initialize SendGrid
-console.log("SendGrid Loaded:", !!process.env.SENDGRID_API_KEY);
-console.log("Email User:", process.env.EMAIL_USER);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Check if email is properly configured
@@ -21,9 +19,6 @@ const isEmailConfigured = () => {
 
 // Reusable SendGrid email function
 const sendEmail = async (to, subject, text, htmlContent = null) => {
-  console.log("Attempting to send email to:", to);
-  console.log("From:", process.env.EMAIL_USER);
-  
   const msg = {
     to,
     from: process.env.EMAIL_USER,
@@ -37,11 +32,9 @@ const sendEmail = async (to, subject, text, htmlContent = null) => {
 
   try {
     await sgMail.send(msg);
-    console.log("Email sent successfully to:", to);
     return true;
   } catch (error) {
     console.error("SendGrid Error:", error.response?.body || error.message);
-    console.error("Error details:", JSON.stringify(error.response?.body || {}, null, 2));
     return false;
   }
 };
