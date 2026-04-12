@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import { sendOTPEmail } from "../services/otpService.js";
 
 // ================= REGISTER =================
@@ -299,9 +300,16 @@ export const sendOTP = async (req, res) => {
       });
     }
 
-    // Check if email already exists and is verified
+    console.log("=== OTP SEND DEBUG ===");
+    console.log("Checking email:", email);
+    console.log("Database connection:", mongoose.connection.name);
+    
+    // Check if email already exists and is verified - ONLY DATABASE CHECK
     const existingUser = await User.findOne({ email, isEmailVerified: true });
+    console.log("Existing verified user found:", existingUser ? existingUser.email : "None");
+    
     if (existingUser) {
+      console.log("Email already registered and verified:", email);
       return res.status(400).json({
         message: "Email is already registered and verified",
         success: false,
