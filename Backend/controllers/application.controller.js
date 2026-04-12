@@ -1,6 +1,6 @@
 import { Application } from "../models/application.model.js";
 import { User } from "../models/user.model.js";
-import { sendEmail } from "../services/otpService.js";
+import { sendEmail } from "../services/emailService.js";
 import mongoose from "mongoose";
 
 export const applyJob = async (req, res) => {
