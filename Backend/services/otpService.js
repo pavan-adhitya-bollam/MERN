@@ -59,6 +59,7 @@ const generateResetToken = () => {
 // Send OTP email using SendGrid
 export const sendOTPEmail = async (email, otp) => {
   const subject = 'Your OTP Code - DreamHire';
+  const text = `Your OTP code is: ${otp}. This code will expire in 5 minutes. Do not share this code with anyone.`;
   const htmlContent = `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
@@ -93,13 +94,14 @@ export const sendOTPEmail = async (email, otp) => {
     </div>
   `;
 
-  return await sendEmail(email, subject, htmlContent);
+  return await sendEmail(email, subject, text, htmlContent);
 };
 
 // Send password reset email using SendGrid
 export const sendPasswordResetEmail = async (email, resetToken) => {
   const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${email}`;
   const subject = 'Password Reset Request - DreamHire';
+  const text = `Please click the following link to reset your password: ${resetLink}. This link will expire in 15 minutes. If you didn't request this password reset, please ignore this email.`;
   const htmlContent = `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
@@ -138,7 +140,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     </div>
   `;
 
-  return await sendEmail(email, subject, htmlContent);
+  return await sendEmail(email, subject, text, htmlContent);
 };
 
 // Store OTP with expiration
