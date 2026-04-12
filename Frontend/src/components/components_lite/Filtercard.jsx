@@ -41,7 +41,7 @@ const filterData = [
   },
   {
     filterType: "Salary",
-    array: ["0-5LPA", "5-10LPA", "10-15LPA", "15LPA+", "Internships"],
+    array: ["Internships", "0-3LPA", "3-5LPA", "5-7LPA", "7-10LPA", "10-15LPA", "15LPA+"],
   },
 ];
 
