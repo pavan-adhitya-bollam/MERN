@@ -28,7 +28,7 @@ const useGetAllJobs = () => {
           }
         );
         console.log("API Response:", res.data);
-        if (res.data.status) {
+        if (res.data.success) {
           // Updated success check
           dispatch(setAllJobs(res.data.jobs));
         } else {
