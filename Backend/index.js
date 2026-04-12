@@ -131,53 +131,47 @@ app.get("/api/email-test", (req, res) => {
   }
 });
 
-// Detailed email debugging endpoint
+// SendGrid email testing endpoint
 app.get("/api/email-debug", async (req, res) => {
   try {
-    // Import and create transporter directly
-    const nodemailer = await import('nodemailer');
+    const { sendOTPEmail } = await import('./services/otpService.js');
     
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 30000,
-      greetingTimeout: 10000,
-      socketTimeout: 30000,
-      tls: {
-        rejectUnauthorized: false
-      },
-      // Force IPv4
-      family: 4
-    });
+    // Test SendGrid email service
+    const testEmail = process.env.EMAIL_USER;
+    if (!testEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "EMAIL_USER not configured"
+      });
+    }
     
-    // Test transporter connection
-    await transporter.verify();
+    const testOTP = "123456"; // Fixed test OTP
     
-    return res.status(200).json({
-      success: true,
-      message: "Gmail SMTP connection verified successfully",
-      email: process.env.EMAIL_USER,
-      smtp: "Connected (IPv4)"
-    });
+    // Test SendGrid email sending
+    const emailSent = await sendOTPEmail(testEmail, testOTP);
+    
+    if (emailSent) {
+      return res.status(200).json({
+        success: true,
+        message: `SendGrid test email sent successfully to ${testEmail}`,
+        email: testEmail,
+        service: "SendGrid",
+        testOTP: testOTP
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: "SendGrid email service failed",
+        email: testEmail,
+        service: "SendGrid"
+      });
+    }
   } catch (error) {
-    console.error("Email debug error:", error);
+    console.error("SendGrid test error:", error);
     return res.status(500).json({
       success: false,
-      message: "Gmail SMTP connection failed - Render IPv6 issue",
-      error: error.message,
-      email: process.env.EMAIL_USER,
-      renderIssue: true,
-      suggestions: [
-        "This is a known Render free tier IPv6 issue",
-        "Upgrade to Render Starter plan ($7/month) to fix",
-        "Or use alternative email service like SendGrid",
-        "Emails work but are slow on free tier"
-      ]
+      message: "SendGrid email service error",
+      error: error.message
     });
   }
 });
