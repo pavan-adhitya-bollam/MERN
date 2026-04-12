@@ -448,6 +448,17 @@ export const completeRegistration = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     console.log("Creating new user...");
+    
+    // Check if user already exists before creating
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log("User already exists:", email);
+      return res.status(400).json({
+        message: "Email already registered. Please use a different email or try logging in.",
+        success: false,
+      });
+    }
+    
     // Create new user
     const newUser = new User({
       fullname,
