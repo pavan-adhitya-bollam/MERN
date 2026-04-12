@@ -9,7 +9,7 @@ import {
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import axios from "@/utils/axios";
 import { toast } from "sonner";
 import { USER_API_ENDPOINT } from "@/utils/data";
 import { setUser } from "@/redux/authSlice";
@@ -36,6 +36,9 @@ const EditProfileModal = ({ open, setOpen }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    console.log("=== PROFILE UPDATE DEBUG ===");
+    console.log("Current token in localStorage:", localStorage.getItem("token"));
+    
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
@@ -45,10 +48,22 @@ const EditProfileModal = ({ open, setOpen }) => {
 
     if (input.file) {
       formData.append("file", input.file);
+      console.log("File included:", input.file.name);
     }
+
+    console.log("Form data prepared:", {
+      fullname: input.fullname,
+      email: input.email,
+      phoneNumber: input.phoneNumber,
+      bio: input.bio,
+      skills: input.skills,
+      hasFile: !!input.file
+    });
 
     try {
       setLoading(true);
+      console.log("Making profile update request to:", `${USER_API_ENDPOINT}/profile/update`);
+      
       const res = await axios.post(
         `${USER_API_ENDPOINT}/profile/update`,
         formData,
@@ -59,20 +74,33 @@ const EditProfileModal = ({ open, setOpen }) => {
           withCredentials: true,
         }
       );
+      
+      console.log("=== PROFILE UPDATE RESPONSE ===");
+      console.log("Status:", res.status);
+      console.log("Success:", res.data.success);
+      console.log("Message:", res.data.message);
+      console.log("Updated user:", res.data.user);
+      console.log("=============================");
+      
       if (res.data.success) {
         dispatch(setUser(res.data.user));
         toast.success(res.data.message);
         console.log("Profile updated successfully:", res.data.user);
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      console.log("=== PROFILE UPDATE ERROR ===");
+      console.log("Error:", error);
+      console.log("Status:", error.response?.status);
+      console.log("Message:", error.response?.data?.message);
+      console.log("==========================");
+      
+      toast.error(error.response?.data?.message || "Profile update failed");
     } finally {
       setLoading(false);
     }
     setOpen(false);
 
-    console.log(input);
+    console.log("Form input data:", input);
   };
 
   const FileChangehandler = (e) => {
