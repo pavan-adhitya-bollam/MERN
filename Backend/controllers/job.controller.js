@@ -268,8 +268,8 @@ export const getAllJobs = async (req, res) => {
         // Salary filter
         if (filters.salary.length > 0) {
           const salaryMatch = filters.salary.some(salRange => {
-            // Extract LPA value using parseFloat (handles decimals automatically)
-            const salaryLPA = parseFloat(job.salary);
+            // Extract LPA value by removing 'LPA' suffix first, then parse
+            const salaryLPA = parseFloat(job.salary.replace('LPA', ''));
             console.log("Raw salary:", job.salary);
             console.log("Converted LPA:", salaryLPA);
             
