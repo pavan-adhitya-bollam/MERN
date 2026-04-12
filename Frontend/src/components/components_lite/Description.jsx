@@ -230,10 +230,15 @@ const Description = () => {
     alert("💾 Saved for later!");
   };
 
-  // ✅ FETCH JOB
+  // ✅ Get single job by ID
   useEffect(() => {
     const fetchSingleJobs = async () => {
       try {
+        console.log("=== JOB DETAILS DEBUG ===");
+        console.log("Job ID from URL:", jobId);
+        console.log("API endpoint:", `${JOB_API_ENDPOINT}/get/${jobId}`);
+        console.log("========================");
+        
         const res = await axios.get(`${JOB_API_ENDPOINT}/get/${jobId}`, {
           withCredentials: true,
         });
