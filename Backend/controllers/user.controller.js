@@ -261,6 +261,9 @@ export const updateProfile = async (req, res) => {
     if (req.file) {
       user.profile.profilePhoto = `/uploads/${req.file.filename}`;
       user.profile.profilePhotoOriginalname = req.file.originalname;
+      console.log("Profile photo updated:", user.profile.profilePhoto);
+    } else {
+      console.log("No new file uploaded, preserving existing profile photo:", user.profile.profilePhoto);
     }
 
     // Save the updated user
