@@ -268,64 +268,46 @@ export const getAllJobs = async (req, res) => {
         // Salary filter
         if (filters.salary.length > 0) {
           const salaryMatch = filters.salary.some(salRange => {
-            // Helper function to parse salary string to LPA value
-            const parseSalary = (salaryStr) => {
-              if (salaryStr.includes('LPA')) {
-                // Extract numeric value from LPA format
-                const lpa = parseFloat(salaryStr.replace('LPA', ''));
-                return lpa;
-              } else if (salaryStr.includes('K per month')) {
-                // Internship: convert monthly K to LPA for comparison
-                const monthly = parseFloat(salaryStr.replace('K per month', ''));
-                return (monthly * 1000 * 12) / 100000; // Convert to LPA
-              } else if (salaryStr.includes(' per month')) {
-                // Internship: convert monthly amount to LPA
-                const monthly = parseFloat(salaryStr.replace(' per month', ''));
-                return (monthly * 12) / 100000; // Convert to LPA
-              } else {
-                // Fallback: try to parse as number (assume it's LPA)
-                return parseFloat(salaryStr) || 0;
-              }
-            };
-            
-            const salaryValue = parseSalary(job.salary);
-            console.log(`Job salary: ${job.salary}, Parsed LPA: ${salaryValue}, Checking range: ${salRange}`);
+            // Extract LPA value using parseFloat (handles decimals automatically)
+            const salaryLPA = parseFloat(job.salary);
+            console.log("Raw salary:", job.salary);
+            console.log("Converted LPA:", salaryLPA);
             
             // Handle internship filter
             if (salRange === 'Internships') {
-              const matchIntern = job.jobType === 'Internship';
+              const matchIntern = job.jobType && job.jobType.toLowerCase().includes("intern");
               console.log(`Internship match: ${matchIntern}`);
               return matchIntern;
             }
             
-            // Handle salary ranges - convert to simple LPA comparison
+            // Handle salary ranges with corrected values
             if (salRange === '0-3LPA') {
-              const match = salaryValue >= 0 && salaryValue <= 3;
+              const match = salaryLPA >= 0 && salaryLPA <= 3;
               console.log(`0-3LPA match: ${match}`);
               return match;
             }
             if (salRange === '3-5LPA') {
-              const match = salaryValue > 3 && salaryValue <= 5;
+              const match = salaryLPA > 3 && salaryLPA <= 5;
               console.log(`3-5LPA match: ${match}`);
               return match;
             }
             if (salRange === '5-7LPA') {
-              const match = salaryValue > 5 && salaryValue <= 7;
+              const match = salaryLPA > 5 && salaryLPA <= 7;
               console.log(`5-7LPA match: ${match}`);
               return match;
             }
             if (salRange === '7-10LPA') {
-              const match = salaryValue > 7 && salaryValue <= 10;
+              const match = salaryLPA > 7 && salaryLPA <= 10;
               console.log(`7-10LPA match: ${match}`);
               return match;
             }
             if (salRange === '10-15LPA') {
-              const match = salaryValue > 10 && salaryValue <= 15;
+              const match = salaryLPA > 10 && salaryLPA <= 15;
               console.log(`10-15LPA match: ${match}`);
               return match;
             }
             if (salRange === '15LPA+') {
-              const match = salaryValue > 15;
+              const match = salaryLPA > 15;
               console.log(`15LPA+ match: ${match}`);
               return match;
             }
