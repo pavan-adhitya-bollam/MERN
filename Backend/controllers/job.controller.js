@@ -229,30 +229,29 @@ export const getAllJobs = async (req, res) => {
           if (!locationMatch) return false;
         }
 
-        // Technology filter (check title and description for tech keywords)
+        // Technology filter (match exact job titles for each technology category)
         if (filters.technology.length > 0) {
           const techMatch = filters.technology.some(tech => {
             const techLower = tech.toLowerCase();
-            // Map technology categories to keywords
-            const techKeywords = {
-              'frontend': ['frontend', 'react', 'angular', 'vue', 'javascript', 'html', 'css', 'ui', 'ux'],
-              'backend': ['backend', 'node', 'express', 'django', 'flask', 'python', 'java', 'php', 'ruby', 'go'],
-              'full stack': ['full stack', 'mern', 'fullstack', 'mean', 'lamp'],
-              'mobile': ['mobile', 'react native', 'ios', 'android', 'flutter', 'swift', 'kotlin'],
-              'data science & ai': ['data science', 'ai', 'machine learning', 'ml', 'data analyst', 'data scientist', 'tensorflow', 'pytorch'],
-              'devops & cloud': ['devops', 'aws', 'azure', 'cloud', 'docker', 'kubernetes', 'ci/cd', 'infrastructure'],
-              'game development': ['game', 'unity', 'unreal', 'gaming', '3d'],
-              'blockchain': ['blockchain', 'web3', 'smart contract', 'solidity', 'ethereum', 'defi'],
-              'cyber security': ['security', 'cyber', 'penetration', 'vulnerability', 'firewall', 'encryption'],
-              'qa & testing': ['qa', 'testing', 'test', 'quality', 'automation', 'selenium'],
-              'database': ['database', 'sql', 'nosql', 'mongodb', 'mysql', 'oracle', 'postgres'],
-              'architecture & design': ['architect', 'architecture', 'design', 'system design', 'technical lead']
+            // Map technology categories to exact job titles in our dataset
+            const techJobTitles = {
+              'frontend': ['Frontend Developer', 'React Developer', 'Angular Developer', 'Vue.js Developer', 'UI/UX Designer', 'Frontend Architect', 'WebGL Developer', 'Three.js Developer', 'WebAssembly Developer'],
+              'backend': ['Backend Developer', 'Node.js Developer', 'Java Developer', 'Python Developer', 'PHP Developer', 'Ruby Developer', 'Go Developer', 'Backend Architect', 'API Developer'],
+              'full stack': ['Full Stack Developer', 'Full Stack Intern'],
+              'mobile': ['Mobile App Developer', 'iOS Developer', 'Android Developer', 'Flutter Developer', 'Mobile App Intern'],
+              'data science & ai': ['Data Analyst', 'Data Scientist', 'AI Engineer', 'Machine Learning Engineer', 'Data Science Intern', 'AI/ML Intern', 'Data Analytics Intern'],
+              'devops & cloud': ['DevOps Engineer', 'Cloud Engineer', 'Site Reliability Engineer', 'Security Engineer', 'Performance Engineer', 'Platform Engineer', 'Infrastructure Engineer', 'Monitoring Engineer', 'Logging Engineer', 'Automation Engineer', 'Compliance Engineer', 'Kubernetes Engineer', 'Terraform Engineer', 'Load Balancing Engineer', 'Scaling Engineer', 'Cloud Computing Intern', 'DevOps Intern'],
+              'game development': ['Game Developer', 'Unity Developer', 'Unreal Engine Developer', 'Game Development Intern'],
+              'blockchain': ['Blockchain Developer', 'Blockchain Intern'],
+              'cyber security': ['Cyber Security Analyst', 'Cyber Security Intern'],
+              'qa & testing': ['QA Tester', 'QA Testing Intern'],
+              'database': ['Database Administrator'],
+              'architecture & design': ['Software Architect', 'Frontend Architect', 'Backend Architect', 'Product Manager', 'Solutions Architect', 'Systems Engineer', 'Engineering Manager', 'Technical Lead', 'Business Analyst', 'Business Continuity Engineer', 'Disaster Recovery Engineer', 'Resilience Engineer', 'Reliability Engineer', 'Validation Engineer', 'Integration Engineer', 'Migration Engineer', 'Analytics Engineer', 'Reporting Engineer', 'Dashboard Developer', 'Visualization Engineer', 'Search Engineer', 'Indexing Engineer', 'Caching Engineer', 'CDN Engineer']
             };
             
-            const keywords = techKeywords[techLower] || [techLower];
-            return keywords.some(keyword => 
-              job.title.toLowerCase().includes(keyword) || 
-              job.description.toLowerCase().includes(keyword)
+            const jobTitles = techJobTitles[techLower] || [];
+            return jobTitles.some(title => 
+              job.title.toLowerCase() === title.toLowerCase()
             );
           });
           if (!techMatch) return false;
