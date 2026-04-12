@@ -473,7 +473,7 @@ export const sendApplicationEmail = async (req, res) => {
     const html = `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
-          <h1 style="margin: 0; font-size: 32px;">Job Portal</h1>
+          <h1 style="margin: 0; font-size: 32px;">DreamHire</h1>
           <p style="margin: 10px 0; opacity: 0.9;">Application Confirmation</p>
         </div>
         
@@ -481,7 +481,7 @@ export const sendApplicationEmail = async (req, res) => {
           <h2 style="color: #374151; margin-bottom: 20px;">Dear ${user_name},</h2>
           
           <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
-            Thank you for applying for the role of <strong>${job_role}</strong> at <strong>${company_name}</strong>.
+            Thank you for applying for the role of <strong>the ${job_role}</strong> at <strong>${company_name}</strong>.
           </p>
           
           <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
@@ -500,7 +500,7 @@ export const sendApplicationEmail = async (req, res) => {
           
           <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
             Regards,<br>
-            Job Portal Team
+            DreamHire Team
           </p>
         </div>
         
