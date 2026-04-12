@@ -9,7 +9,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  define: {
-    'VITE_API_BASE_URL': process.env.VITE_API_BASE_URL || 'https://dreamhire-backend-ljay.onrender.com',
+  server: {
+    host: process.env.VITE_API_BASE_URL || 'https://dreamhire-backend-ljay.onrender.com',
   },
 })
