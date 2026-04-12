@@ -517,7 +517,7 @@ export const sendApplicationEmail = async (req, res) => {
     console.log("=========================");
 
     // Send email
-    const emailSent = await sendEmail(user_email, subject, html);
+    const emailSent = await sendEmail(user_email, subject, "Application received", html);
 
     console.log("=== EMAIL RESULT ===");
     console.log("Email sent result:", emailSent);
