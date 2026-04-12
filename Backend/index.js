@@ -39,6 +39,9 @@ const corsOptions = {
       allowedOrigins.push(process.env.FRONTEND_URL);
     }
     
+    // Add Vercel frontend URL for production
+    allowedOrigins.push("https://your-vercel-domain.vercel.app");
+    
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
