@@ -40,7 +40,7 @@ const corsOptions = {
     }
     
     // Add Vercel frontend URL for production
-    allowedOrigins.push("https://your-vercel-domain.vercel.app");
+    allowedOrigins.push("https://mern-frontend-eight-alpha.vercel.app");
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
