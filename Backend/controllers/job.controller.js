@@ -127,6 +127,10 @@ export const getAllJobs = async (req, res) => {
     const filters = parseFilters(keyword);
     console.log("Parsed filters:", filters);
 
+    // Check if this is a free-text search (no filter syntax found)
+    const isFreeTextSearch = keyword && !keyword.includes(':') && !keyword.includes('|');
+    console.log("Is free text search:", isFreeTextSearch, "Keyword:", keyword);
+
     const jobs = [
       // Full-time Jobs (1-50)
       { _id: "1", title: "Frontend Developer", description: "We are seeking a talented Frontend Developer to join our team at Google. In this role, you will be responsible for building responsive, user-friendly web applications using React, JavaScript, HTML5, and CSS3. You will collaborate with UX designers and backend engineers to create seamless user experiences, optimize applications for maximum speed and scalability, and implement modern design principles. The ideal candidate should have strong experience with React ecosystem, state management, responsive design, and passion for creating intuitive user interfaces that delight millions of users worldwide.", location: "Hyderabad", salary: "5.8LPA", jobType: "Full Time", position: 6, experience: getRandomExperience("1"), postedOn: "2024-01-15", company: { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" } },
@@ -235,13 +239,15 @@ export const getAllJobs = async (req, res) => {
       { _id: "100", title: "Business Continuity Engineer", description: "BCP is seeking strategic Business Continuity Engineers to develop and maintain business continuity plans and ensure operational resilience. In this planning-focused role, you will work on continuity planning, risk assessment, and recovery strategies. Responsibilities include BCP development, risk analysis, continuity testing, and recovery planning. Strong experience with business continuity, risk management, and disaster recovery is essential.", location: "Bangalore", salary: "7.8LPA", jobType: "Full Time", position: 4, experience: getRandomExperience("100"), postedOn: "2024-04-23", company: { name: "BCP", logo: "https://upload.wikimedia.org/wikipedia/commons/3/31/Business_Continuity_Planning_logo.svg" } }
     ];
 
-    // Apply filters if any are selected
+    // Apply filters if any are selected OR if it's a free-text search
     const hasActiveFilters = filters.location.length > 0 || 
                           filters.technology.length > 0 || 
                           filters.experience.length > 0 || 
-                          filters.salary.length > 0;
+                          filters.salary.length > 0 ||
+                          isFreeTextSearch;
 
     if (hasActiveFilters) {
+      console.log("Applying filters or free-text search:", filters, "Free-text search:", isFreeTextSearch);
       console.log("Applying filters:", filters);
       const filteredJobs = jobs.filter((job) => {
         // Location filter
@@ -286,6 +292,14 @@ export const getAllJobs = async (req, res) => {
             job.experience === exp
           );
           if (!expMatch) return false;
+        }
+
+        // Free-text search for job titles
+        if (isFreeTextSearch) {
+          console.log("Performing free-text search for:", keyword);
+          const titleMatch = job.title.toLowerCase().includes(keyword.toLowerCase());
+          console.log(`Job title "${job.title}" matches "${keyword}":`, titleMatch);
+          if (!titleMatch) return false;
         }
 
         // Salary filter
