@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { generateAndSendOTP } from "../utils/emailService.js";
+import { sendOTPEmail } from "../services/otpService.js";
 
 // ================= REGISTER =================
 export const register = async (req, res) => {
@@ -309,13 +309,23 @@ export const sendOTP = async (req, res) => {
     }
 
     // Generate and send OTP via email
-    const otpData = await generateAndSendOTP(email);
-    if (!otpData) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    
+    console.log("Generated OTP:", otp, "for email:", email);
+    
+    // Send OTP via SendGrid
+    const emailSent = await sendOTPEmail(email, otp);
+    console.log("OTP email sent result:", emailSent);
+    
+    if (!emailSent) {
       return res.status(500).json({
         message: "Failed to send OTP to email",
         success: false,
       });
     }
+    
+    const otpData = { otp, expiresAt };
 
     // Find or create user
     let user = await User.findOne({ email });
