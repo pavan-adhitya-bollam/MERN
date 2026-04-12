@@ -22,6 +22,21 @@ const Profile = () => {
   console.log("User profile:", user?.profile);
   console.log("Profile photo (nested):", user?.profile?.profilePhoto);
   console.log("Profile photo (direct):", user?.profilePhoto);
+  
+  // Debug profile photo URL construction
+  const profilePhoto = user?.profile?.profilePhoto || user?.profilePhoto;
+  console.log("Selected profile photo:", profilePhoto);
+  
+  if (profilePhoto && profilePhoto.trim() !== "") {
+    const constructedUrl = profilePhoto.startsWith('http') 
+      ? profilePhoto 
+      : `https://dreamhire-backend-ljay.onrender.com${profilePhoto}`;
+    console.log("Constructed URL:", constructedUrl);
+    console.log("URL starts with http:", profilePhoto.startsWith('http'));
+    console.log("Final URL will be:", constructedUrl);
+  } else {
+    console.log("No profile photo found, using placeholder");
+  }
   console.log("===================");
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
@@ -36,16 +51,23 @@ const Profile = () => {
                   (() => {
                     const profilePhoto = user?.profile?.profilePhoto || user?.profilePhoto;
                     if (profilePhoto && profilePhoto.trim() !== "") {
-                      return profilePhoto.startsWith('http') 
+                      const finalUrl = profilePhoto.startsWith('http') 
                         ? profilePhoto 
                         : `https://dreamhire-backend-ljay.onrender.com${profilePhoto}`;
+                      console.log("AvatarImage src set to:", finalUrl);
+                      return finalUrl;
                     }
+                    console.log("AvatarImage src set to placeholder");
                     return "https://via.placeholder.com/150";
                   })()
                 }
                 alt="@shadcn"
+                onLoad={(e) => {
+                  console.log("AvatarImage loaded successfully:", e.target.src);
+                }}
                 onError={(e) => {
-                  console.log("Image load error, using placeholder");
+                  console.log("AvatarImage load error, original src:", e.target.src);
+                  console.log("Setting to placeholder");
                   e.target.src = "https://via.placeholder.com/150";
                 }}
               />
