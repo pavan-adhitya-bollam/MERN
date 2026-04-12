@@ -485,13 +485,45 @@ export const completeRegistration = async (req, res) => {
 
     console.log("Creating new user...");
     
-    // Check if user already exists before creating
+    // Check if user already exists and is fully registered
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      console.log("User already exists:", email);
+    console.log("Existing user check:", {
+      email,
+      exists: !!existingUser,
+      isEmailVerified: existingUser?.isEmailVerified,
+      hasPassword: !!existingUser?.password
+    });
+    
+    if (existingUser && existingUser.isEmailVerified === true) {
+      console.log("Fully registered user already exists:", email);
       return res.status(400).json({
         message: "Email already registered. Please use a different email or try logging in.",
         success: false,
+      });
+    }
+    
+    // Handle existing user that is not fully registered (OTP verified but not completed)
+    if (existingUser && existingUser.isEmailVerified === false) {
+      console.log("Updating existing unverified user:", email);
+      // Update existing user with complete registration details
+      existingUser.fullname = fullname;
+      existingUser.phoneNumber = phoneNumber;
+      existingUser.adharcard = adharcard;
+      existingUser.pancard = pancard;
+      existingUser.password = hashedPassword;
+      existingUser.role = role;
+      existingUser.profile = {
+        profilePhoto: profilePhotoUrl,
+      };
+      existingUser.isEmailVerified = true;
+      
+      console.log("Saving updated user to database...");
+      await existingUser.save();
+      console.log("User updated successfully:", existingUser.email);
+
+      return res.status(201).json({
+        message: `Registration completed successfully for ${fullname}`,
+        success: true,
       });
     }
     
