@@ -168,8 +168,8 @@ const EditProfileModal = ({ open, setOpen }) => {
                     <img 
                       src={
                         user.profile.profilePhoto.startsWith('http') 
-                          ? user.profile.profilePhoto 
-                          : `http://localhost:5001${user.profile.profilePhoto}`
+                        ? user.profile.profilePhoto 
+                        : `https://dreamhire-backend-ljay.onrender.com${user.profile.profilePhoto}`
                       } 
                       alt="Current profile" 
                       className="h-16 w-16 rounded-full object-cover"

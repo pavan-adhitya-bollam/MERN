@@ -25,7 +25,7 @@ const TempPasswordUpdate = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/temp-update-password', {
+      const response = await fetch('https://dreamhire-backend-ljay.onrender.com/api/auth/temp-update-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
