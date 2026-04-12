@@ -2,8 +2,6 @@ import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 import { User } from "../models/user.model.js";
 import mongoose from "mongoose";
-import { sendJobApplicationEmail } from "../utils/emailService.js";
-import { sendEmail } from "../utils/sendEmail.js";
 
 export const applyJob = async (req, res) => {
   try {
@@ -199,20 +197,7 @@ export const applyJob = async (req, res) => {
 
     console.log("Application created successfully");
 
-    // SEND EMAIL CONFIRMATION
-    console.log("Sending application confirmation email...");
-    try {
-      await sendJobApplicationEmail(
-        user.email,
-        user.fullname,
-        job.title,
-        job.company.name
-      );
-      console.log("✅ Application confirmation email sent successfully to:", user.email);
-    } catch (emailError) {
-      console.error('❌ Failed to send application email:', emailError);
-      // Continue with application even if email fails
-    }
+    console.log("Application submitted successfully (email confirmation disabled)");
 
     return res.status(201).json({
       message: "Application submitted successfully",
