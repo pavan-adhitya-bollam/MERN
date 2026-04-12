@@ -65,6 +65,7 @@ export const postJob = async (req, res) => {
 export const getAllJobs = async (req, res) => {
   try {
     console.log("=== GET ALL JOBS DEBUG ===");
+    console.log("Full query params:", req.query);
     
     const keyword = req.query.keyword?.toLowerCase() || "";
     console.log("Received keyword:", keyword);
@@ -78,6 +79,11 @@ export const getAllJobs = async (req, res) => {
 
     // Parse filter query if it contains pipe-separated filters
     const parseFilters = (query) => {
+      console.log("=== PARSE FILTERS DEBUG ===");
+      console.log("Input query:", query);
+      console.log("Query type:", typeof query);
+      console.log("Query length:", query?.length);
+      
       const filters = {
         location: [],
         technology: [],
@@ -85,19 +91,36 @@ export const getAllJobs = async (req, res) => {
         salary: []
       };
       
-      if (!query || query === '') return filters;
+      if (!query || query === '') {
+        console.log("Empty query, returning empty filters");
+        return filters;
+      }
       
       const filterParts = query.split('|');
-      filterParts.forEach(part => {
+      console.log("Filter parts after split:", filterParts);
+      
+      filterParts.forEach((part, index) => {
+        console.log(`Processing part ${index}: "${part}"`);
         const [filterType, values] = part.split(':');
+        console.log(`Split result: filterType="${filterType}", values="${values}"`);
+        
         if (filterType && values) {
           const filterKey = filterType.toLowerCase();
+          console.log(`Filter key: "${filterKey}"`);
+          
           if (filters.hasOwnProperty(filterKey)) {
-            filters[filterKey] = values.split(',').map(v => v.trim());
+            const valueArray = values.split(',').map(v => v.trim());
+            console.log(`Value array:`, valueArray);
+            filters[filterKey] = valueArray;
+          } else {
+            console.log(`Filter key "${filterKey}" not found in filters object`);
           }
+        } else {
+          console.log(`Invalid filter part: "${part}"`);
         }
       });
       
+      console.log("Final parsed filters:", filters);
       return filters;
     };
 
