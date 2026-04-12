@@ -301,32 +301,33 @@ export const getAllJobs = async (req, res) => {
             console.log("Converted LPA:", salaryLPA);
             console.log("Checking against range:", salRange);
             
-            // Handle internship filter
-            if (salRange === 'Internships') {
+            // Handle internship filter (case-insensitive)
+            if (salRange.toLowerCase() === 'internships') {
               const matchIntern = job.jobType && job.jobType.toLowerCase().includes("intern");
               console.log(`Internship match: ${matchIntern}`);
               return matchIntern;
             }
             
-            // Handle salary ranges with proper logic
+            // Handle salary ranges with proper logic (case-insensitive)
             let match = false;
-            switch(salRange) {
-              case '0-3LPA':
+            const normalizedRange = salRange.toLowerCase();
+            switch(normalizedRange) {
+              case '0-3lpa':
                 match = salaryLPA >= 0 && salaryLPA <= 3;
                 break;
-              case '3-5LPA':
+              case '3-5lpa':
                 match = salaryLPA > 3 && salaryLPA <= 5;
                 break;
-              case '5-7LPA':
+              case '5-7lpa':
                 match = salaryLPA > 5 && salaryLPA <= 7;
                 break;
-              case '7-10LPA':
+              case '7-10lpa':
                 match = salaryLPA > 7 && salaryLPA <= 10;
                 break;
-              case '10-15LPA':
+              case '10-15lpa':
                 match = salaryLPA > 10 && salaryLPA <= 15;
                 break;
-              case '15LPA+':
+              case '15lpa+':
                 match = salaryLPA > 15;
                 break;
               default:
