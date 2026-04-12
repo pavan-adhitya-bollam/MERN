@@ -267,9 +267,13 @@ export const getAllJobs = async (req, res) => {
 
         // Salary filter
         if (filters.salary.length > 0) {
+          console.log("Salary filters selected:", filters.salary);
           const salaryMatch = filters.salary.some(salRange => {
             // Extract LPA value by removing 'LPA' suffix first, then parse
             const salaryLPA = parseFloat(job.salary.replace('LPA', ''));
+            console.log("Job ID:", job._id);
+            console.log("Job Title:", job.title);
+            console.log("Job Type:", job.jobType);
             console.log("Raw salary:", job.salary);
             console.log("Converted LPA:", salaryLPA);
             console.log("Checking against range:", salRange);
@@ -310,7 +314,11 @@ export const getAllJobs = async (req, res) => {
             console.log(`${salRange} match: ${match}`);
             return match;
           });
-          if (!salaryMatch) return false;
+          console.log(`Job ${job._id} salary match result: ${salaryMatch}`);
+          if (!salaryMatch) {
+            console.log(`Job ${job._id} filtered out due to salary`);
+            return false;
+          }
         }
 
         return true;
