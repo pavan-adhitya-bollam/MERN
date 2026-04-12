@@ -1,6 +1,6 @@
 import { Application } from "../models/application.model.js";
-import { Job } from "../models/job.model.js";
-import { User } from "../models/user.model.js";
+import User from "../models/user.model.js";
+import { sendEmail } from "../services/otpService.js";
 import mongoose from "mongoose";
 
 export const applyJob = async (req, res) => {
@@ -450,6 +450,7 @@ export const sendApplicationEmail = async (req, res) => {
 
     // Validate required fields
     if (!user_name || !user_email || !job_role || !company_name) {
+      console.log("❌ Missing required fields:", { user_name: !!user_name, user_email: !!user_email, job_role: !!job_role, company_name: !!company_name });
       return res.status(400).json({
         message: "Missing required fields: user_name, user_email, job_role, company_name",
         success: false,
@@ -459,6 +460,7 @@ export const sendApplicationEmail = async (req, res) => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(user_email)) {
+      console.log("❌ Invalid email format:", user_email);
       return res.status(400).json({
         message: "Invalid email format",
         success: false,
@@ -508,11 +510,18 @@ export const sendApplicationEmail = async (req, res) => {
       </div>
     `;
 
+    console.log("=== EMAIL SENDING DEBUG ===");
     console.log("📧 Sending email to:", user_email);
     console.log("📧 Subject:", subject);
+    console.log("📧 Email service configured:", !!process.env.SENDGRID_API_KEY);
+    console.log("=========================");
 
     // Send email
     const emailSent = await sendEmail(user_email, subject, html);
+
+    console.log("=== EMAIL RESULT ===");
+    console.log("Email sent result:", emailSent);
+    console.log("==================");
 
     if (emailSent) {
       console.log("✅ Email sent successfully to:", user_email);
@@ -529,7 +538,12 @@ export const sendApplicationEmail = async (req, res) => {
     }
 
   } catch (error) {
+    console.error("=== EMAIL ERROR DETAILS ===");
     console.error("❌ Error in sendApplicationEmail:", error);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("==========================");
+    
     return res.status(500).json({
       message: "Server error while sending email",
       success: false,
