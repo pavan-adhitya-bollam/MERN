@@ -104,9 +104,9 @@ app.get("/api/email-config", (req, res) => {
 app.get("/api/email-test", (req, res) => {
   try {
     const emailUser = process.env.EMAIL_USER;
-    const emailPass = process.env.EMAIL_PASS;
+    const sendgridKey = process.env.SENDGRID_API_KEY;
     
-    if (!emailUser || !emailPass) {
+    if (!emailUser || !sendgridKey) {
       return res.status(400).json({
         success: false,
         message: "Email credentials not configured"
