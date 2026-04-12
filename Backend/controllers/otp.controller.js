@@ -37,12 +37,18 @@ export const sendOTP = async (req, res) => {
     storeOTP(email, otp);
 
     // Send OTP via email
+    console.log("Sending OTP to email:", email);
+    console.log("Email service configured:", isEmailConfigured());
+    console.log("SendGrid API Key loaded:", !!process.env.SENDGRID_API_KEY);
+    
     const emailSent = await sendOTPEmail(email, otp);
+    console.log("OTP email send result:", emailSent);
     
     if (!emailSent) {
+      console.error("OTP email failed to send");
       return res.status(500).json({
         success: false,
-        message: 'Failed to send OTP email. Please check your Gmail credentials in .env file.'
+        message: 'Failed to send OTP email. Please try again later.'
       });
     }
 
@@ -140,7 +146,7 @@ export const forgotPassword = async (req, res) => {
     if (!emailSent) {
       return res.status(500).json({
         success: false,
-        message: 'Failed to send password reset email. Please check your Gmail credentials.'
+        message: 'Failed to send password reset email. Please try again later.'
       });
     }
 

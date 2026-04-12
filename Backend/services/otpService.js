@@ -92,9 +92,9 @@ export const sendOTPEmail = async (email, otp) => {
 
 // Send password reset email using SendGrid
 export const sendPasswordResetEmail = async (email, resetToken) => {
-  const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}&email=${email}`;
+  const resetLink = `${process.env.FRONTEND_URL || 'https://mern-frontend-eight-alpha.vercel.app'}/reset-password?token=${resetToken}&email=${email}`;
   const subject = 'Password Reset Request - DreamHire';
-  const text = `Please click the following link to reset your password: ${resetLink}. This link will expire in 15 minutes. If you didn't request this password reset, please ignore this email.`;
+  const text = `Please click the following link to reset your password: ${resetLink}. This link will expire in 15 minutes. If you didn't request this password reset, Please ignore this email.`;
   const htmlContent = `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; color: white;">
@@ -117,7 +117,7 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
         <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
           <strong>Important:</strong>
           <br>· This link will expire in <strong>15 minutes</strong>
-          <br>· If you didn't request this password reset, please ignore this email
+          <br>· If you didn't request this password reset, Please ignore this email
           <br>· For security reasons, never share this link with anyone
         </p>
         
