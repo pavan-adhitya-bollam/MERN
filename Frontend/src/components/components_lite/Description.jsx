@@ -27,6 +27,13 @@ const Description = () => {
 
   // ✅ Helper function to check if user is properly authenticated
   const isUserAuthenticated = () => {
+    console.log("=== AUTHENTICATION DEBUG ===");
+    console.log("User state:", user);
+    console.log("User exists:", !!user);
+    console.log("User email:", user?.email);
+    console.log("User _id:", user?._id);
+    console.log("==========================");
+    
     // Check if user exists and has valid authentication data
     if (!user || !user.email || !user._id) {
       return false;
