@@ -1,4 +1,5 @@
 import { Job } from "../models/job.model.js";
+import mongoose from "mongoose";
 
 //Admin job posting
 export const postJob = async (req, res) => {
@@ -116,11 +117,21 @@ export const getJobById = async (req, res) => {
     console.log("Job ID from params:", jobId);
     console.log("==========================");
 
-    // Find job by ID and populate company details
-    const job = await Job.findById(jobId).populate("company");
+    let job = null;
+
+    // Check if ID is a valid MongoDB ObjectId
+    if (mongoose.Types.ObjectId.isValid(jobId)) {
+      console.log("Valid ObjectId, searching in MongoDB...");
+      // Find job by ID and populate company details
+      job = await Job.findById(jobId).populate("company");
+    } else {
+      console.log("Invalid ObjectId, checking for hardcoded fallback...");
+      // For now, return not found for invalid ObjectIds
+      // In the future, we could add hardcoded fallback here if needed
+    }
 
     if (!job) {
-      console.log("Job not found in database for ID:", jobId);
+      console.log("Job not found for ID:", jobId);
       return res.status(404).json({
         message: "Job not found",
         success: false,
