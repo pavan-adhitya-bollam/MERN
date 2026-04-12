@@ -41,7 +41,7 @@ const filterData = [
   },
   {
     filterType: "Salary",
-    array: ["0-50k", "50k-100k", "100k-200k", "200k+"],
+    array: ["0-5LPA", "5-10LPA", "10-15LPA", "15LPA+", "Internships"],
   },
 ];
 

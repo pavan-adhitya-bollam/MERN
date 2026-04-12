@@ -268,12 +268,34 @@ export const getAllJobs = async (req, res) => {
         // Salary filter
         if (filters.salary.length > 0) {
           const salaryMatch = filters.salary.some(salRange => {
-            const salary = parseInt(job.salary);
+            // Helper function to parse salary string to annual amount
+            const parseSalary = (salaryStr) => {
+              if (salaryStr.includes('LPA')) {
+                // Full-time job: convert LPA to annual amount
+                const lpa = parseFloat(salaryStr.replace('LPA', ''));
+                return lpa * 100000; // Convert to annual amount
+              } else if (salaryStr.includes('K per month')) {
+                // Internship: convert monthly K to annual amount for comparison
+                const monthly = parseFloat(salaryStr.replace('K per month', ''));
+                return monthly * 1000 * 12; // Convert to annual amount
+              } else if (salaryStr.includes('per month')) {
+                // Internship: convert monthly amount to annual amount
+                const monthly = parseFloat(salaryStr.replace(' per month', ''));
+                return monthly * 12; // Convert to annual amount
+              } else {
+                // Fallback: try to parse as number
+                return parseInt(salaryStr) || 0;
+              }
+            };
+            
+            const annualSalary = parseSalary(job.salary);
+            
             switch(salRange) {
-              case '0-50k': return salary <= 50000;
-              case '50k-100k': return salary > 50000 && salary <= 100000;
-              case '100k-200k': return salary > 100000 && salary <= 200000;
-              case '200k+': return salary > 200000;
+              case '0-5LPA': return annualSalary <= 500000;
+              case '5-10LPA': return annualSalary > 500000 && annualSalary <= 1000000;
+              case '10-15LPA': return annualSalary > 1000000 && annualSalary <= 1500000;
+              case '15LPA+': return annualSalary > 1500000;
+              case 'Internships': return job.jobType === 'Internship';
               default: return false;
             }
           });
