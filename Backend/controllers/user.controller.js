@@ -477,10 +477,12 @@ export const completeRegistration = async (req, res) => {
     const file = req.file;
     let profilePhotoUrl = "https://via.placeholder.com/150";
     
-    // Skip file upload on Render for now - make profile photo optional
+    // Handle profile photo upload during registration
     if (file && file.mimetype.startsWith('image/')) {
-      console.log("File upload skipped - profile photo is optional for now");
-      profilePhotoUrl = null; // Skip file upload to avoid Render issues
+      console.log("Profile photo uploaded during registration:", file.filename);
+      profilePhotoUrl = `/uploads/${file.filename}`;
+    } else {
+      console.log("No profile photo uploaded during registration, using default");
     }
 
     console.log("Hashing password...");
