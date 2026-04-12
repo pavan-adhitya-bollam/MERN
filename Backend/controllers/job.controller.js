@@ -268,65 +268,70 @@ export const getAllJobs = async (req, res) => {
         // Salary filter
         if (filters.salary.length > 0) {
           const salaryMatch = filters.salary.some(salRange => {
-            // Helper function to parse salary string to annual amount
+            // Helper function to parse salary string to LPA value
             const parseSalary = (salaryStr) => {
               if (salaryStr.includes('LPA')) {
-                // Full-time job: convert LPA to annual amount
+                // Extract numeric value from LPA format
                 const lpa = parseFloat(salaryStr.replace('LPA', ''));
-                return lpa * 100000; // Convert to annual amount
+                return lpa;
               } else if (salaryStr.includes('K per month')) {
-                // Internship: convert monthly K to annual amount for comparison
+                // Internship: convert monthly K to LPA for comparison
                 const monthly = parseFloat(salaryStr.replace('K per month', ''));
-                return monthly * 1000 * 12; // Convert to annual amount
+                return (monthly * 1000 * 12) / 100000; // Convert to LPA
               } else if (salaryStr.includes(' per month')) {
-                // Internship: convert monthly amount to annual amount
+                // Internship: convert monthly amount to LPA
                 const monthly = parseFloat(salaryStr.replace(' per month', ''));
-                return monthly * 12; // Convert to annual amount
-              } else if (!isNaN(salaryStr) && salaryStr.length >= 5) {
-                // Numeric salary (already in annual format)
-                return parseInt(salaryStr) || 0;
+                return (monthly * 12) / 100000; // Convert to LPA
               } else {
-                // Fallback: try to parse as number
-                return parseInt(salaryStr) || 0;
+                // Fallback: try to parse as number (assume it's LPA)
+                return parseFloat(salaryStr) || 0;
               }
             };
             
-            const annualSalary = parseSalary(job.salary);
-            console.log(`Job salary: ${job.salary}, Parsed annual: ${annualSalary}, Checking range: ${salRange}`);
+            const salaryValue = parseSalary(job.salary);
+            console.log(`Job salary: ${job.salary}, Parsed LPA: ${salaryValue}, Checking range: ${salRange}`);
             
-            switch(salRange) {
-              case '0-3LPA': 
-                const match0_3 = annualSalary >= 0 && annualSalary <= 300000;
-                console.log(`0-3LPA match: ${match0_3}`);
-                return match0_3;
-              case '3-5LPA': 
-                const match3_5 = annualSalary > 300000 && annualSalary <= 500000;
-                console.log(`3-5LPA match: ${match3_5}`);
-                return match3_5;
-              case '5-7LPA': 
-                const match5_7 = annualSalary > 500000 && annualSalary <= 700000;
-                console.log(`5-7LPA match: ${match5_7}`);
-                return match5_7;
-              case '7-10LPA': 
-                const match7_10 = annualSalary > 700000 && annualSalary <= 1000000;
-                console.log(`7-10LPA match: ${match7_10}`);
-                return match7_10;
-              case '10-15LPA': 
-                const match10_15 = annualSalary > 1000000 && annualSalary <= 1500000;
-                console.log(`10-15LPA match: ${match10_15}`);
-                return match10_15;
-              case '15LPA+': 
-                const match15plus = annualSalary > 1500000;
-                console.log(`15LPA+ match: ${match15plus}`);
-                return match15plus;
-              case 'Internships': 
-                const matchIntern = job.jobType === 'Internship';
-                console.log(`Internship match: ${matchIntern}`);
-                return matchIntern;
-              default: 
-                console.log(`Unknown salary range: ${salRange}`);
-                return false;
+            // Handle internship filter
+            if (salRange === 'Internships') {
+              const matchIntern = job.jobType === 'Internship';
+              console.log(`Internship match: ${matchIntern}`);
+              return matchIntern;
             }
+            
+            // Handle salary ranges - convert to simple LPA comparison
+            if (salRange === '0-3LPA') {
+              const match = salaryValue >= 0 && salaryValue <= 3;
+              console.log(`0-3LPA match: ${match}`);
+              return match;
+            }
+            if (salRange === '3-5LPA') {
+              const match = salaryValue > 3 && salaryValue <= 5;
+              console.log(`3-5LPA match: ${match}`);
+              return match;
+            }
+            if (salRange === '5-7LPA') {
+              const match = salaryValue > 5 && salaryValue <= 7;
+              console.log(`5-7LPA match: ${match}`);
+              return match;
+            }
+            if (salRange === '7-10LPA') {
+              const match = salaryValue > 7 && salaryValue <= 10;
+              console.log(`7-10LPA match: ${match}`);
+              return match;
+            }
+            if (salRange === '10-15LPA') {
+              const match = salaryValue > 10 && salaryValue <= 15;
+              console.log(`10-15LPA match: ${match}`);
+              return match;
+            }
+            if (salRange === '15LPA+') {
+              const match = salaryValue > 15;
+              console.log(`15LPA+ match: ${match}`);
+              return match;
+            }
+            
+            console.log(`Unknown salary range: ${salRange}`);
+            return false;
           });
           if (!salaryMatch) return false;
         }
