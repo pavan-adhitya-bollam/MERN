@@ -61,7 +61,7 @@ export const postJob = async (req, res) => {
   }
 };
 
-// Get all jobs
+// Get all jobs - DEPLOYMENT TRIGGER: Salary filtering fixes
 export const getAllJobs = async (req, res) => {
   try {
     console.log("=== GET ALL JOBS DEBUG ===");
