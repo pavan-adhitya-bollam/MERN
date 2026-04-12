@@ -41,6 +41,7 @@ const corsOptions = {
     
     // Add Vercel frontend URL for production
     allowedOrigins.push("https://mern-frontend-eight-alpha.vercel.app");
+    allowedOrigins.push("https://mern-frontend-git-master-2303a51047-4400s-projects.vercel.app");
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
