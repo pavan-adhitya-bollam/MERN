@@ -8,7 +8,8 @@ const otpStore = new Map();
 const passwordResetStore = new Map();
 
 // Initialize SendGrid
-console.log("SendGrid Key Loaded:", !!process.env.SENDGRID_API_KEY);
+console.log("SendGrid Loaded:", !!process.env.SENDGRID_API_KEY);
+console.log("Email User:", process.env.EMAIL_USER);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Check if email is properly configured
