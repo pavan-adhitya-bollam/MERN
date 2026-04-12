@@ -15,6 +15,14 @@ const Profile = () => {
   useGetAppliedJobs();
   const [open, setOpen] = useState(false);
   const { user } = useSelector((store) => store.auth);
+  
+  // Debug user data structure
+  console.log("=== PROFILE DEBUG ===");
+  console.log("User data:", user);
+  console.log("User profile:", user?.profile);
+  console.log("Profile photo (nested):", user?.profile?.profilePhoto);
+  console.log("Profile photo (direct):", user?.profilePhoto);
+  console.log("===================");
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50">
       <Navbar />
@@ -25,14 +33,19 @@ const Profile = () => {
             <Avatar className="cursor-pointer h-24 w-24">
               <AvatarImage
                 src={
-                  user?.profile?.profilePhoto 
-                    ? (user.profile.profilePhoto.startsWith('http') 
-                        ? user.profile.profilePhoto 
-                        : `https://dreamhire-backend-ljay.onrender.com${user.profile.profilePhoto}`)
-                    : "https://via.placeholder.com/150"
+                  (() => {
+                    const profilePhoto = user?.profile?.profilePhoto || user?.profilePhoto;
+                    if (profilePhoto && profilePhoto.trim() !== "") {
+                      return profilePhoto.startsWith('http') 
+                        ? profilePhoto 
+                        : `https://dreamhire-backend-ljay.onrender.com${profilePhoto}`;
+                    }
+                    return "https://via.placeholder.com/150";
+                  })()
                 }
                 alt="@shadcn"
                 onError={(e) => {
+                  console.log("Image load error, using placeholder");
                   e.target.src = "https://via.placeholder.com/150";
                 }}
               />
