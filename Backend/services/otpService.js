@@ -19,6 +19,13 @@ const isEmailConfigured = () => {
 
 // Reusable SendGrid email function
 const sendEmail = async (to, subject, text, htmlContent = null) => {
+  console.log("=== SENDGRID EMAIL DEBUG ===");
+  console.log("Sending to:", to);
+  console.log("From:", process.env.EMAIL_USER);
+  console.log("Subject:", subject);
+  console.log("SendGrid API Key loaded:", !!process.env.SENDGRID_API_KEY);
+  console.log("============================");
+  
   const msg = {
     to,
     from: process.env.EMAIL_USER,
@@ -32,9 +39,11 @@ const sendEmail = async (to, subject, text, htmlContent = null) => {
 
   try {
     await sgMail.send(msg);
+    console.log("Email sent successfully to:", to);
     return true;
   } catch (error) {
     console.error("SendGrid Error:", error.response?.body || error.message);
+    console.error("Error details:", JSON.stringify(error.response?.body || {}, null, 2));
     return false;
   }
 };
