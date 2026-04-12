@@ -423,8 +423,10 @@ export const completeRegistration = async (req, res) => {
     const file = req.file;
     let profilePhotoUrl = "https://via.placeholder.com/150";
     
+    // Skip file upload on Render for now - make profile photo optional
     if (file && file.mimetype.startsWith('image/')) {
-      profilePhotoUrl = `/uploads/${file.filename}`;
+      console.log("File upload skipped - profile photo is optional for now");
+      profilePhotoUrl = null; // Skip file upload to avoid Render issues
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
