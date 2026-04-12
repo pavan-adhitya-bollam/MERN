@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { USER_API_ENDPOINT, AUTH_API_ENDPOINT } from "@/utils/data.js";
 import { toast } from "sonner";
+import { saveAuthState } from "@/utils/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setUser } from "@/redux/authSlice";
 
@@ -58,6 +59,8 @@ const Login = () => {
         withCredentials: true,
       });
       if (res.data.success) {
+        // Save complete auth state to localStorage
+        saveAuthState(res.data.token, res.data.user);
         dispatch(setUser(res.data.user));
         navigate("/");
         toast.success(res.data.message);

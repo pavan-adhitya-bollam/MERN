@@ -25,6 +25,7 @@ import PostJob from "./components/admincomponent/PostJob";
 import Applicants from "./components/admincomponent/Applicants";
 import ProtectedRoute from "./components/admincomponent/ProtectedRoute";
 import Creator from "./components/creator/Creator.jsx";
+import AuthProvider from "./components/auth/AuthProvider";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Home /> },
@@ -152,9 +153,9 @@ const appRouter = createBrowserRouter([
 
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <RouterProvider router={appRouter}></RouterProvider>
-    </div>
+    </AuthProvider>
   );
 }
 
