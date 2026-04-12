@@ -215,11 +215,17 @@ export const applyJob = async (req, res) => {
 
 export const getAppliedJobs = async (req, res) => {
   try {
+    console.log("=== GET APPLIED JOBS DEBUG ===");
+    console.log("User ID from middleware:", req.id);
+    
     const userId = req.id;
 
     // Get applications from MongoDB
+    console.log("Fetching applications for user:", userId);
     const applications = await Application.find({ applicant: userId })
       .sort({ createdAt: -1 });
+    
+    console.log("Found applications:", applications.length);
 
     if (!applications || applications.length === 0) {
       return res.status(200).json({
@@ -339,13 +345,18 @@ export const getAppliedJobs = async (req, res) => {
     ];
 
     // Map applications to include job details
+    console.log("Mapping applications to job details...");
     const applicationWithJobDetails = applications.map(app => {
       const job = jobs.find(j => j._id === app.job);
+      console.log(`Application ${app._id}: Job ID ${app.job} -> Job found: ${!!job}`);
       return {
         ...app.toObject(),
         job: job || null
       };
     });
+
+    console.log("Final application count with job details:", applicationWithJobDetails.length);
+    console.log("=== GET APPLIED JOBS COMPLETE ===");
 
     return res.status(200).json({
       application: applicationWithJobDetails,
