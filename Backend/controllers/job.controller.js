@@ -224,19 +224,29 @@ export const getJobById = async (req, res) => {
     console.log("Job ID from params:", jobId);
     console.log("==========================");
 
-    let job = null;
+    // Helper function to get random experience based on job ID
+    const getRandomExperience = (jobId) => {
+      const experiences = ["0-3 years", "3-5 years", "5-7 years", "7+ years"];
+      const seed = parseInt(jobId) || 1;
+      return experiences[seed % experiences.length];
+    };
 
-    // Check if ID is a valid MongoDB ObjectId
-    if (mongoose.Types.ObjectId.isValid(jobId)) {
-      console.log("Valid ObjectId, searching in MongoDB...");
-      // Find job by ID and populate company details
-      job = await Job.findById(jobId).populate("company");
-    } else {
-      console.log("Invalid ObjectId, checking for hardcoded fallback...");
-      // For now, return not found for invalid ObjectIds
-      // In the future, we could add hardcoded fallback here if needed
-    }
+    // Hardcoded jobs array (first 10 jobs for job details)
+    const jobs = [
+      { _id: "1", title: "Frontend Developer", description: "We are seeking a talented Frontend Developer to join our team at Google. In this role, you will be responsible for building responsive, user-friendly web applications using React, JavaScript, HTML5, and CSS3. You will collaborate with UX designers and backend engineers to create seamless user experiences, optimize applications for maximum speed and scalability, and implement modern design principles. The ideal candidate should have strong experience with React ecosystem, state management, responsive design, and passion for creating intuitive user interfaces that delight millions of users worldwide.", location: "Hyderabad", salary: "50000", jobType: "Full Time", position: 6, experience: getRandomExperience("1"), postedOn: "2024-01-15", company: { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" } },
+      { _id: "2", title: "Backend Developer", description: "Amazon is looking for a skilled Backend Developer to design, develop, and maintain scalable server-side applications. You will work with Node.js, Express, and various databases to build robust APIs that power our e-commerce platform. Responsibilities include developing microservices, implementing authentication and authorization, optimizing database performance, and ensuring system security. You will collaborate with cross-functional teams to deliver high-quality solutions that can handle millions of requests daily. Strong experience in Node.js, RESTful APIs, database design, and cloud services is essential.", location: "Bangalore", salary: "60000", jobType: "Full Time", position: 8, experience: getRandomExperience("2"), postedOn: "2024-01-16", company: { name: "Amazon", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" } },
+      { _id: "3", title: "Full Stack Developer", description: "Microsoft is seeking an exceptional Full Stack Developer to work on our cloud-based applications. This role requires expertise in entire MERN stack - MongoDB, Express.js, React, and Node.js. You will be responsible for developing end-to-end web applications, from database design to frontend implementation. Key responsibilities include building responsive user interfaces, creating RESTful APIs, implementing authentication systems, and optimizing application performance. The ideal candidate should have a strong understanding of both frontend and backend technologies, experience with cloud platforms, and ability to work independently on complex projects.", location: "Chennai", salary: "70000", jobType: "Full Time", position: 1, experience: getRandomExperience("3"), postedOn: "2024-01-17", company: { name: "Microsoft", logo: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" } },
+      { _id: "4", title: "Java Developer", description: "Infosys is looking for experienced Java Developers to join our enterprise application development team. You will design and develop robust, scalable Java applications using Spring Boot framework. Responsibilities include developing RESTful APIs, implementing business logic, working with relational databases, and ensuring code quality through testing. You will work on large-scale enterprise projects for Fortune 500 companies, requiring strong problem-solving skills and ability to work in agile environments. Experience with Java 8+, Spring Boot, Microservices, Hibernate, and unit testing is essential.", location: "Pune", salary: "55000", jobType: "Full Time", position: 150, experience: getRandomExperience("4"), postedOn: "2024-01-18", company: { name: "Infosys", logo: "https://upload.wikimedia.org/wikipedia/commons/9/95/Infosys_logo.svg" } },
+      { _id: "5", title: "Python Developer", description: "TCS is seeking skilled Python Developers to build and maintain web applications and data processing systems. You will work with Django and Flask frameworks to develop scalable backend solutions, REST APIs, and data analysis tools. Responsibilities include writing clean, efficient Python code, implementing database models, creating APIs, and optimizing application performance. You will work on projects ranging from web applications to machine learning pipelines. Strong experience with Python, Django/Flask, SQL databases, REST APIs, and understanding of software development best practices is required.", location: "Delhi", salary: "65000", jobType: "Full Time", position: 200, experience: getRandomExperience("5"), postedOn: "2024-01-19", company: { name: "TCS", logo: "https://upload.wikimedia.org/wikipedia/commons/0/0e/Tata_Consultancy_Services_old_logo.svg" } },
+      { _id: "6", title: "UI/UX Designer", description: "Adobe is seeking a creative UI/UX Designer to join our design team. In this role, you will be responsible for creating intuitive, visually appealing user interfaces and experiences for our digital products. You will conduct user research, create wireframes and prototypes, design high-fidelity mockups, and collaborate with developers to ensure design implementation. The ideal candidate should have strong experience with design tools like Figma, Adobe Creative Suite, understanding of user-centered design principles, and a portfolio showcasing exceptional design work. You will work on products used by millions of creative professionals worldwide.", location: "Mumbai", salary: "45000", jobType: "Full Time", position: 5, experience: getRandomExperience("6"), postedOn: "2024-01-20", company: { name: "Adobe", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Adobe_Corporate_logo.svg" } },
+      { _id: "7", title: "DevOps Engineer", description: "Accenture is looking for experienced DevOps Engineers to automate and optimize our software development and deployment processes. You will work with AWS, Docker, Kubernetes, and CI/CD pipelines to ensure smooth, reliable software delivery. Responsibilities include designing and implementing infrastructure as code, monitoring system performance, troubleshooting deployment issues, and collaborating with development teams to improve development workflows. Strong experience with cloud platforms, containerization, automation tools, and understanding of DevOps best practices is essential.", location: "Noida", salary: "80000", jobType: "Full Time", position: 120, experience: getRandomExperience("7"), postedOn: "2024-01-21", company: { name: "Accenture", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Accenture_logo.svg" } },
+      { _id: "8", title: "Data Analyst", description: "Wipro is seeking detail-oriented Data Analysts to transform raw data into actionable insights. In this role, you will analyze complex datasets, create reports and dashboards, and provide data-driven recommendations to business stakeholders. Responsibilities include writing SQL queries, creating Power BI visualizations, performing statistical analysis, and presenting findings to management. The ideal candidate should have strong analytical skills, experience with SQL and Power BI, understanding of business intelligence concepts, and ability to communicate complex data insights clearly.", location: "Kolkata", salary: "50000", jobType: "Full Time", position: 180, experience: getRandomExperience("8"), postedOn: "2024-01-22", company: { name: "Wipro", logo: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Wipro_logo.svg" } },
+      { _id: "9", title: "Mobile App Developer", description: "Flipkart is seeking talented Mobile App Developers to create engaging mobile experiences for millions of users. You will work with React Native to build cross-platform mobile applications for iOS and Android. Responsibilities include developing mobile features, optimizing app performance, integrating with backend APIs, and ensuring smooth user experiences across devices. Strong experience with React Native, mobile UI/UX principles, performance optimization, and understanding of mobile app development lifecycle is required.", location: "Ahmedabad", salary: "60000", jobType: "Full Time", position: 5, experience: getRandomExperience("9"), postedOn: "2024-01-23", company: { name: "Flipkart", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Flipkart_Logo_2024.png" } },
+      { _id: "10", title: "AI Engineer", description: "OpenAI is seeking exceptional AI Engineers to advance field of artificial intelligence. In this cutting-edge role, you will work on developing and implementing machine learning models, neural networks, and AI systems. Responsibilities include researching new AI techniques, implementing deep learning algorithms, optimizing model performance, and contributing to groundbreaking AI projects. The ideal candidate should have strong experience with Python, TensorFlow/PyTorch, deep learning concepts, and a passion for pushing boundaries of AI technology.", location: "Bangalore", salary: "90000", jobType: "Full Time", position: 1, experience: getRandomExperience("10"), postedOn: "2024-01-24", company: { name: "OpenAI", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg" } }
+    ];
 
+    const job = jobs.find(j => j._id === jobId);
+    
     if (!job) {
       console.log("Job not found for ID:", jobId);
       return res.status(404).json({
@@ -253,42 +263,26 @@ export const getJobById = async (req, res) => {
   } catch (error) {
     console.error("Get job by ID error:", error);
     return res.status(500).json({
-      message: "Server error",
+      message: error.message,
       success: false,
     });
   }
 };
 
-// Get admin jobs
+//Admin job created
 export const getAdminJobs = async (req, res) => {
   try {
     const adminId = req.id;
-    const jobs = await Job.find({ created_by: adminId })
-      .populate({
-        path: "company",
-        sort: { createdAt: -1 },
-      })
-      .populate({
-        path: "created_by",
-        sort: { createdAt: -1 },
-      });
-
-    if (!jobs || jobs.length === 0) {
-      return res.status(404).json({
-        message: "Jobs not found",
-        success: false,
-      });
+    const jobs = await Job.find({ created_by: adminId }).populate({
+      path: "company",
+      sort: { createdAt: -1 },
+    });
+    if (!jobs) {
+      return res.status(404).json({ message: "No jobs found", status: false });
     }
-
-    return res.status(200).json({
-      jobs,
-      success: true,
-    });
+    return res.status(200).json({ jobs, status: true });
   } catch (error) {
-    console.error("Get admin jobs error:", error);
-    return res.status(500).json({
-      message: error.message,
-      success: false,
-    });
+    console.error(error);
+    return res.status(500).json({ message: "Server Error", status: false });
   }
 };
