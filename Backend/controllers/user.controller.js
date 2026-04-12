@@ -93,6 +93,7 @@ export const register = async (req, res) => {
 // ================= LOGIN =================
 export const login = async (req, res) => {
   try {
+    console.log("=== LOGIN DEBUG ===");
     console.log('Login request received:', req.body);
     const { email, password, role } = req.body;
 
@@ -104,6 +105,7 @@ export const login = async (req, res) => {
       });
     }
 
+    console.log('Finding user for email:', email);
     const user = await User.findOne({ email });
     if (!user) {
       console.log('User not found for email:', email);
@@ -113,9 +115,20 @@ export const login = async (req, res) => {
       });
     }
 
-    console.log('User found:', user.email, 'Role:', user.role);
+    console.log('User found:', {
+      email: user.email,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      passwordHashLength: user.password?.length
+    });
 
+    console.log('Comparing passwords...');
+    console.log('Input password length:', password.length);
+    console.log('Stored password hash:', user.password.substring(0, 20) + '...');
+    
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Password comparison result:', isMatch);
+    
     if (!isMatch) {
       console.log('Password mismatch for email:', email);
       return res.status(400).json({
@@ -132,6 +145,7 @@ export const login = async (req, res) => {
       });
     }
 
+    console.log('Generating JWT token...');
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, role: user.role },
@@ -139,18 +153,21 @@ export const login = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // Set token in cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+    console.log('Login successful for:', email);
+    console.log("==================");
 
     return res.status(200).json({
-      message: `Welcome back ${user.fullname}`,
+      message: "Login successful",
       success: true,
-      user,
+      user: {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        role: user.role,
+        profile: user.profile,
+        createdAt: user.createdAt,
+      },
       token
     });
   } catch (error) {
@@ -158,7 +175,6 @@ export const login = async (req, res) => {
     console.error("Error details:", {
       message: error.message,
       stack: error.stack,
-      email: req.body?.email,
       role: req.body?.role
     });
     return res.status(500).json({

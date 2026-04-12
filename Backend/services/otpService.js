@@ -101,7 +101,15 @@ export const sendOTPEmail = async (email, otp) => {
 
 // Send password reset email using SendGrid
 export const sendPasswordResetEmail = async (email, resetToken) => {
+  console.log("=== PASSWORD RESET EMAIL DEBUG ===");
+  console.log("Email:", email);
+  console.log("Reset Token:", resetToken);
+  console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+  
   const resetLink = `${process.env.FRONTEND_URL || 'https://mern-frontend-eight-alpha.vercel.app'}/reset-password?token=${resetToken}&email=${email}`;
+  console.log("Generated Reset Link:", resetLink);
+  console.log("=================================");
+  
   const subject = 'Password Reset Request - DreamHire';
   const text = `Please click the following link to reset your password: ${resetLink}. This link will expire in 15 minutes. If you didn't request this password reset, Please ignore this email.`;
   const htmlContent = `
@@ -142,7 +150,10 @@ export const sendPasswordResetEmail = async (email, resetToken) => {
     </div>
   `;
 
-  return await sendEmail(email, subject, text, htmlContent);
+  console.log("Sending password reset email with link:", resetLink);
+  const result = await sendEmail(email, subject, text, htmlContent);
+  console.log("Password reset email sent result:", result);
+  return result;
 };
 
 // Store OTP with expiration
