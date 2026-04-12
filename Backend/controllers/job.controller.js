@@ -76,6 +76,34 @@ export const getAllJobs = async (req, res) => {
       return experiences[seed % experiences.length];
     };
 
+    // Parse filter query if it contains pipe-separated filters
+    const parseFilters = (query) => {
+      const filters = {
+        location: [],
+        technology: [],
+        experience: [],
+        salary: []
+      };
+      
+      if (!query || query === '') return filters;
+      
+      const filterParts = query.split('|');
+      filterParts.forEach(part => {
+        const [filterType, values] = part.split(':');
+        if (filterType && values) {
+          const filterKey = filterType.toLowerCase();
+          if (filters.hasOwnProperty(filterKey)) {
+            filters[filterKey] = values.split(',').map(v => v.trim());
+          }
+        }
+      });
+      
+      return filters;
+    };
+
+    const filters = parseFilters(keyword);
+    console.log("Parsed filters:", filters);
+
     const jobs = [
       // Full-time Jobs (1-50)
       { _id: "1", title: "Frontend Developer", description: "We are seeking a talented Frontend Developer to join our team at Google. In this role, you will be responsible for building responsive, user-friendly web applications using React, JavaScript, HTML5, and CSS3. You will collaborate with UX designers and backend engineers to create seamless user experiences, optimize applications for maximum speed and scalability, and implement modern design principles. The ideal candidate should have strong experience with React ecosystem, state management, responsive design, and passion for creating intuitive user interfaces that delight millions of users worldwide.", location: "Hyderabad", salary: "50000", jobType: "Full Time", position: 6, experience: getRandomExperience("1"), postedOn: "2024-01-15", company: { name: "Google", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" } },
@@ -184,16 +212,76 @@ export const getAllJobs = async (req, res) => {
       { _id: "100", title: "Business Continuity Engineer", description: "BCP is seeking strategic Business Continuity Engineers to develop and maintain business continuity plans and ensure operational resilience. In this planning-focused role, you will work on continuity planning, risk assessment, and recovery strategies. Responsibilities include BCP development, risk analysis, continuity testing, and recovery planning. Strong experience with business continuity, risk management, and disaster recovery is essential.", location: "Bangalore", salary: "78000", jobType: "Full Time", position: 4, experience: getRandomExperience("100"), postedOn: "2024-04-23", company: { name: "BCP", logo: "https://upload.wikimedia.org/wikipedia/commons/3/31/Business_Continuity_Planning_logo.svg" } }
     ];
 
-    if (keyword) {
-      console.log("Filtering jobs with keyword:", keyword);
+    // Apply filters if any are selected
+    const hasActiveFilters = filters.location.length > 0 || 
+                          filters.technology.length > 0 || 
+                          filters.experience.length > 0 || 
+                          filters.salary.length > 0;
+
+    if (hasActiveFilters) {
+      console.log("Applying filters:", filters);
       const filteredJobs = jobs.filter((job) => {
-        const searchTerm = keyword.toLowerCase();
-        return (
-          job.title.toLowerCase().includes(searchTerm) ||
-          job.description.toLowerCase().includes(searchTerm) ||
-          job.location.toLowerCase().includes(searchTerm) ||
-          job.jobType.toLowerCase().includes(searchTerm)
-        );
+        // Location filter
+        if (filters.location.length > 0) {
+          const locationMatch = filters.location.some(loc => 
+            job.location.toLowerCase().includes(loc.toLowerCase())
+          );
+          if (!locationMatch) return false;
+        }
+
+        // Technology filter (check title and description for tech keywords)
+        if (filters.technology.length > 0) {
+          const techMatch = filters.technology.some(tech => {
+            const techLower = tech.toLowerCase();
+            // Map technology categories to keywords
+            const techKeywords = {
+              'frontend': ['frontend', 'react', 'angular', 'vue', 'javascript', 'html', 'css', 'ui', 'ux'],
+              'backend': ['backend', 'node', 'express', 'django', 'flask', 'python', 'java', 'php', 'ruby', 'go'],
+              'full stack': ['full stack', 'mern', 'fullstack', 'mean', 'lamp'],
+              'mobile': ['mobile', 'react native', 'ios', 'android', 'flutter', 'swift', 'kotlin'],
+              'data science & ai': ['data science', 'ai', 'machine learning', 'ml', 'data analyst', 'data scientist', 'tensorflow', 'pytorch'],
+              'devops & cloud': ['devops', 'aws', 'azure', 'cloud', 'docker', 'kubernetes', 'ci/cd', 'infrastructure'],
+              'game development': ['game', 'unity', 'unreal', 'gaming', '3d'],
+              'blockchain': ['blockchain', 'web3', 'smart contract', 'solidity', 'ethereum', 'defi'],
+              'cyber security': ['security', 'cyber', 'penetration', 'vulnerability', 'firewall', 'encryption'],
+              'qa & testing': ['qa', 'testing', 'test', 'quality', 'automation', 'selenium'],
+              'database': ['database', 'sql', 'nosql', 'mongodb', 'mysql', 'oracle', 'postgres'],
+              'architecture & design': ['architect', 'architecture', 'design', 'system design', 'technical lead']
+            };
+            
+            const keywords = techKeywords[techLower] || [techLower];
+            return keywords.some(keyword => 
+              job.title.toLowerCase().includes(keyword) || 
+              job.description.toLowerCase().includes(keyword)
+            );
+          });
+          if (!techMatch) return false;
+        }
+
+        // Experience filter
+        if (filters.experience.length > 0) {
+          const expMatch = filters.experience.some(exp => 
+            job.experience === exp
+          );
+          if (!expMatch) return false;
+        }
+
+        // Salary filter
+        if (filters.salary.length > 0) {
+          const salaryMatch = filters.salary.some(salRange => {
+            const salary = parseInt(job.salary);
+            switch(salRange) {
+              case '0-50k': return salary <= 50000;
+              case '50k-100k': return salary > 50000 && salary <= 100000;
+              case '100k-200k': return salary > 100000 && salary <= 200000;
+              case '200k+': return salary > 200000;
+              default: return false;
+            }
+          });
+          if (!salaryMatch) return false;
+        }
+
+        return true;
       });
       console.log("Final filtered jobs:", filteredJobs.length);
       return res.status(200).json({
