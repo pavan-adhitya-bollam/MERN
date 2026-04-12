@@ -20,7 +20,7 @@ const isEmailConfigured = () => {
 };
 
 // Reusable SendGrid email function
-const sendEmail = async (to, subject, htmlContent) => {
+const sendEmail = async (to, subject, text, htmlContent = null) => {
   console.log("Attempting to send email to:", to);
   console.log("From:", process.env.EMAIL_USER);
   
@@ -28,8 +28,12 @@ const sendEmail = async (to, subject, htmlContent) => {
     to,
     from: process.env.EMAIL_USER,
     subject,
-    html: htmlContent,
+    text,
   };
+
+  if (htmlContent) {
+    msg.html = htmlContent;
+  }
 
   try {
     await sgMail.send(msg);
