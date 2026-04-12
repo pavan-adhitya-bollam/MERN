@@ -411,9 +411,24 @@ export const verifyOTP = async (req, res) => {
 // ================= COMPLETE REGISTRATION =================
 export const completeRegistration = async (req, res) => {
   try {
+    console.log("=== COMPLETE REGISTRATION DEBUG ===");
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
+    console.log("Request headers:", req.headers);
+    console.log("=====================================");
+    
     const { email, fullname, phoneNumber, password, adharcard, pancard, role } = req.body;
 
     if (!fullname || !email || !phoneNumber || !password || !role || !pancard || !adharcard) {
+      console.log("Missing required fields:", { 
+        fullname: !!fullname, 
+        email: !!email, 
+        phoneNumber: !!phoneNumber, 
+        password: !!password, 
+        role: !!role, 
+        pancard: !!pancard, 
+        adharcard: !!adharcard 
+      });
       return res.status(400).json({
         message: "Missing required fields",
         success: false,
@@ -429,8 +444,10 @@ export const completeRegistration = async (req, res) => {
       profilePhotoUrl = null; // Skip file upload to avoid Render issues
     }
 
+    console.log("Hashing password...");
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    console.log("Creating new user...");
     // Create new user
     const newUser = new User({
       fullname,
@@ -446,7 +463,9 @@ export const completeRegistration = async (req, res) => {
       isEmailVerified: true,
     });
 
+    console.log("Saving user to database...");
     await newUser.save();
+    console.log("User saved successfully:", newUser.email);
 
     return res.status(201).json({
       message: `Registration completed successfully for ${fullname}`,
@@ -454,9 +473,16 @@ export const completeRegistration = async (req, res) => {
     });
   } catch (error) {
     console.error("Complete registration error:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      code: error.code
+    });
     return res.status(500).json({
       message: "Server Error completing registration",
       success: false,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
