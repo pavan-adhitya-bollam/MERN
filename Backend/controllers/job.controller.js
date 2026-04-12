@@ -272,6 +272,7 @@ export const getAllJobs = async (req, res) => {
             const salaryLPA = parseFloat(job.salary.replace('LPA', ''));
             console.log("Raw salary:", job.salary);
             console.log("Converted LPA:", salaryLPA);
+            console.log("Checking against range:", salRange);
             
             // Handle internship filter
             if (salRange === 'Internships') {
@@ -280,40 +281,34 @@ export const getAllJobs = async (req, res) => {
               return matchIntern;
             }
             
-            // Handle salary ranges with corrected values
-            if (salRange === '0-3LPA') {
-              const match = salaryLPA >= 0 && salaryLPA <= 3;
-              console.log(`0-3LPA match: ${match}`);
-              return match;
-            }
-            if (salRange === '3-5LPA') {
-              const match = salaryLPA > 3 && salaryLPA <= 5;
-              console.log(`3-5LPA match: ${match}`);
-              return match;
-            }
-            if (salRange === '5-7LPA') {
-              const match = salaryLPA > 5 && salaryLPA <= 7;
-              console.log(`5-7LPA match: ${match}`);
-              return match;
-            }
-            if (salRange === '7-10LPA') {
-              const match = salaryLPA > 7 && salaryLPA <= 10;
-              console.log(`7-10LPA match: ${match}`);
-              return match;
-            }
-            if (salRange === '10-15LPA') {
-              const match = salaryLPA > 10 && salaryLPA <= 15;
-              console.log(`10-15LPA match: ${match}`);
-              return match;
-            }
-            if (salRange === '15LPA+') {
-              const match = salaryLPA > 15;
-              console.log(`15LPA+ match: ${match}`);
-              return match;
+            // Handle salary ranges with proper logic
+            let match = false;
+            switch(salRange) {
+              case '0-3LPA':
+                match = salaryLPA >= 0 && salaryLPA <= 3;
+                break;
+              case '3-5LPA':
+                match = salaryLPA > 3 && salaryLPA <= 5;
+                break;
+              case '5-7LPA':
+                match = salaryLPA > 5 && salaryLPA <= 7;
+                break;
+              case '7-10LPA':
+                match = salaryLPA > 7 && salaryLPA <= 10;
+                break;
+              case '10-15LPA':
+                match = salaryLPA > 10 && salaryLPA <= 15;
+                break;
+              case '15LPA+':
+                match = salaryLPA > 15;
+                break;
+              default:
+                console.log(`Unknown salary range: ${salRange}`);
+                return false;
             }
             
-            console.log(`Unknown salary range: ${salRange}`);
-            return false;
+            console.log(`${salRange} match: ${match}`);
+            return match;
           });
           if (!salaryMatch) return false;
         }
