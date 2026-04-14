@@ -4,7 +4,7 @@ A comprehensive job recruitment platform connecting job seekers with recruiters,
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://dreamhire-frontend.onrender.com](https://dreamhire-frontend.onrender.com)
+- **Frontend**: [https://mern-frontend-eight-alpha.vercel.app/](https://mern-frontend-eight-alpha.vercel.app/)
 - **Backend**: [https://dreamhire-backend-ljay.onrender.com](https://dreamhire-backend-ljay.onrender.com)
 
 ## 🛠 Technologies Used
