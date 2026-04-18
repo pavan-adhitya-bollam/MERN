@@ -268,9 +268,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Contact
 
 - **Developer**: Pavan Adhitya Bollam
-- **Email**: [your-email@example.com]
-- **LinkedIn**: [your-profile-link]
-- **Portfolio**: [your-portfolio-link]
+- **Email**: [pavanadhityabollam@gmail.com]
+
 
 ---
 
